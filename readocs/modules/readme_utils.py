@@ -30,24 +30,34 @@ def update_readme(section_title: str, section_content: str, project_title: str =
 
     # Define o padrão para encontrar a seção
     # Ele busca por um título de seção e captura tudo que vem depois, até o próximo título ou o final do arquivo.
-    pattern = r"(^## " + re.escape(section_title) + r")\n.*?(?=\n## |\Z)"
-    
-    new_section_content = f"## {section_title}\n{section_content}\n"
+    # A flag re.escape() garante que caracteres especiais no título não causem problemas.
+    pattern = r"(^##\s+" + re.escape(section_title) + r")\n.*?(?=\n## |\Z)"
+
+    # Prepara a nova seção para a substituição
+    # A string de substituição precisa de tratamento para evitar 'bad escape'
+    new_section_content_with_title = f"## {section_title}\n{section_content}\n"
 
     # 3. Tenta encontrar e substituir a seção.
     if re.search(pattern, content, re.DOTALL | re.MULTILINE):
+        # O re.sub pode falhar se `new_section_content_with_title` tiver escapes inválidos.
+        # A solução mais segura é usar uma função de callback ou escapar os caracteres.
+        
+        # Correção: use uma função de callback (lambda) que retorna a string de substituição.
+        # O argumento 'm' é o match object. Usar um callback impede o `re.sub` de interpretar
+        # a string de substituição como uma regex.
         updated_content = re.sub(
             pattern,
-            new_section_content,
+            lambda m: new_section_content_with_title,
             content,
             flags=re.DOTALL | re.MULTILINE
         )
+        
         with open(path, "w", encoding="utf-8") as f:
             f.write(updated_content)
         return f"Seção '{section_title}' atualizada com sucesso."
     else:
         # 4. Se a seção não for encontrada, adicione-a no final do arquivo.
-        content += f"\n{new_section_content}"
+        content += f"\n{new_section_content_with_title}"
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
         return f"Seção '{section_title}' adicionada com sucesso."

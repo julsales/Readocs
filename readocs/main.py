@@ -1,47 +1,133 @@
 from agents.doc_agent import doc_agent
 from agents.curation_agent import curation_agent
 from agno.team import Team
-from agno.models.anthropic import Claude  
-from dotenv import load_dotenv
+from agno.models.anthropic import Claude
+from datetime import datetime
+import re
 import os
+from pathlib import Path
 
-print(f"O diretório de trabalho atual é: {os.getcwd()}")
+from dotenv import load_dotenv
 
-load_dotenv()
+# ========== CONFIGURAÇÃO DO PROJETO ==========
+# Ajuste estes caminhos conforme seu projeto:
 
-# Certifique-se de que a variável de ambiente ANTHROPIC_API_KEY está definida.
-# Se você estiver usando o modelo Claude, o AGNO buscará a chave aqui.
-if "ANTHROPIC_API_KEY" not in os.environ:
-    print("Atenção: A variável de ambiente 'ANTHROPIC_API_KEY' não está definida.")
-    print("Por favor, defina-a com sua chave de API do Claude para que o código funcione.")
-    print("Você pode obter uma chave em: https://console.anthropic.com/")
+PROJECT_FOLDER = "readocs"  # Nome da pasta com o código
+ROOT_DIR = ".."             # Onde criar README/CHANGELOG (.. = pasta pai)
 
-team = Team(
-    mode="coordinate",
-    members=[curation_agent, doc_agent],
-    model=Claude(
-        id="claude-3-haiku-20240307",  # Modelo mais barato da Anthropic
-        api_key=os.getenv("ANTHROPIC_API_KEY")
-    ),
-    success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
-    instructions=[
-        "Documentação deve ser clara, concisa e em markdown", 
-        "Evitar sobrescrever conteúdo útil", 
-        "Evitar repetir informações já documentadas"
-    ],
-    markdown=True
-)
+# Para outros projetos, mude apenas essas variáveis:
+# PROJECT_FOLDER = "src"     # ou "app", "backend", etc.  
+# ROOT_DIR = "."             # ou "../..", etc.
 
-team.print_response("""
+# =============================================
+
+def setup_directories():
+    """Configura diretórios de forma inteligente"""
+    current = Path.cwd()
+    
+    # Se já estamos no diretório que tem o PROJECT_FOLDER, vai para o pai
+    if (current / PROJECT_FOLDER).exists():
+        target_root = current
+        project_path = f"./{PROJECT_FOLDER}"
+    
+    # Se estamos dentro do PROJECT_FOLDER, sobe um nível  
+    elif current.name == PROJECT_FOLDER:
+        target_root = current.parent
+        project_path = f"./{PROJECT_FOLDER}"
+        os.chdir(target_root)
+    
+    # Caso geral: usa ROOT_DIR configurado
+    else:
+        target_root = Path(ROOT_DIR).resolve()
+        project_path = f"./{PROJECT_FOLDER}"
+        os.chdir(target_root)
+    
+    print(f"📁 Diretório raiz (arquivos): {os.getcwd()}")
+    print(f"🔍 Código para análise: {project_path}")
+    
+    return project_path
+
+def get_next_version():
+    """Determina a próxima versão baseada no CHANGELOG existente"""
+    changelog_path = "CHANGELOG.md"
+    
+    if not os.path.exists(changelog_path):
+        return "0.1.0"
+    
+    try:
+        with open(changelog_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        version_pattern = r'## \[(\d+)\.(\d+)\.(\d+)\]'
+        versions = re.findall(version_pattern, content)
+        
+        if not versions:
+            return "0.1.0"
+        
+        major, minor, patch = map(int, versions[0])
+        return f"{major}.{minor}.{patch + 1}"
+    
+    except Exception as e:
+        print(f"Erro ao ler CHANGELOG: {e}")
+        return "0.1.0"
+
+def main():
+    # Configura diretórios automaticamente
+    project_path = setup_directories()
+    
+    load_dotenv()
+    
+    # Verifica API key
+    if "ANTHROPIC_API_KEY" not in os.environ:
+        print("⚠️  Variável ANTHROPIC_API_KEY não definida.")
+        print("Defina sua chave API do Claude para usar os agentes.")
+        return
+    
+    # Determina versão
+    next_version = get_next_version()
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    
+    print(f"🏷️  Próxima versão: {next_version}")
+    
+    # Detecta o nome do projeto automaticamente
+    project_name = os.path.basename(os.getcwd())
+    
+    team = Team(
+        mode="coordinate",
+        members=[curation_agent, doc_agent],
+        model=Claude(
+            id="claude-3-haiku-20240307",
+            api_key=os.getenv("ANTHROPIC_API_KEY")
+        ),
+        success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
+        instructions=[
+            "Documentação deve ser clara, concisa e em markdown",
+            "Instruções de instalação devem ser precisas e bem explicadas",
+            "Evitar sobrescrever conteúdo útil",
+            "Evitar repetir informações já documentadas",
+            "Mantenha o README.md focado na visão geral e o CHANGELOG.md nas mudanças",
+            "Mantenha imagens se existirem",
+        ],
+        markdown=True
+    )
+    
+    team.print_response(f"""
     Você é um agente que deve analisar completamente o projeto para gerar a documentação.
     A documentação deve ser toda em português e seguir as diretrizes do projeto.
     Para o README.md, você deve:
-    1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto.
+    1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
     2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
-    3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências que você encontrou).
-
+    3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
+    4. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
+    
     Diretrizes para o CHANGELOG.md:
-    1. Adicione uma nova entrada para a versão 0.1.0.
-    2. O novo registro deve incluir a data de hoje.
+    1. Adicione uma nova entrada para a versão {next_version}.
+    2. O novo registro deve incluir a data de hoje ({current_date}).
     3. A entrada deve ser: "- (Adicionado) Inicialização do sistema de documentação com agentes."
-""")
+    """)
+    
+    print(f"\n✅ Documentação gerada!")
+    print(f"📄 README.md e CHANGELOG.md criados no diretório atual")
+
+# Executa automaticamente
+main()
