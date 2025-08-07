@@ -105,7 +105,6 @@ def main():
             "Instruções de instalação devem ser precisas e bem explicadas",
             "Evitar sobrescrever conteúdo útil",
             "Evitar repetir informações já documentadas",
-            "Se existir seções duplicadas, combine-as",
             "Mantenha o README.md focado na visão geral e o CHANGELOG.md nas mudanças",
             "Mantenha imagens se existirem",
         ],
@@ -116,12 +115,11 @@ def main():
     Você é um agente que deve analisar completamente o projeto para gerar a documentação.
     A documentação deve ser toda em português e seguir as diretrizes do projeto.
     Para o README.md, você deve:
-    1. Comece com o título sendo o nome do projeto que é '{project_name}'. Apenas a primeira letra do nome do projeto deve ser maiúscula.
-    2. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
-    3. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
-    4. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
-    5. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
-    6. Crie uma seção de Funcionalidades que descreva o que o projeto faz, baseado na análise dos arquivos.
+    1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
+    2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
+    3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
+    4. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
+    
     Diretrizes para o CHANGELOG.md:
     1. Adicione uma nova entrada para a versão {next_version}.
     2. O novo registro deve incluir a data de hoje ({current_date}).
@@ -131,4 +129,5 @@ def main():
     print(f"\n✅ Documentação gerada!")
     print(f"📄 README.md e CHANGELOG.md criados no diretório atual")
 
+# Executa automaticamente
 main()
