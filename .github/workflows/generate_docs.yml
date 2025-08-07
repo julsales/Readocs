@@ -1,4 +1,4 @@
-name: Gerar e Atualizar Documentação
+name: Gerar Documentação
 
 on:
   workflow_dispatch:
