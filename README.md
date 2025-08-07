@@ -1,42 +1,24 @@
 # Readocs
 
 ## Introdução
-O Readocs é um projeto que utiliza agentes de IA para automatizar a geração e atualização da documentação de projetos. Ele é composto por módulos reutilizáveis e agentes especializados em diferentes tarefas, como curadoria e geração de documentação.
-
-O objetivo do Readocs é facilitar o processo de manutenção da documentação técnica, tornando-o mais eficiente e preciso. Ele analisa a estrutura do projeto, suas dependências e características, e então atualiza automaticamente o README.md e o CHANGELOG.md com as informações relevantes.
+O projeto `readocs` é uma ferramenta que utiliza agentes de inteligência artificial (AI) para automatizar a atualização da documentação técnica de um projeto. Ele inclui um agente de curadoria e um agente de documentação que trabalham em conjunto para manter a documentação clara, concisa e atualizada, seguindo diretrizes pré-definidas. O projeto é construído usando a API do Claude, um modelo de linguagem da Anthropic.
 
 ## Instalação
-## Instalação
+Para instalar e utilizar o projeto `readocs`, siga estas etapas:
 
-O Readocs requer as seguintes dependências:
-
-- Python 3.7 ou superior
-- Bibliotecas especificadas no arquivo `requirements.txt`
-
-Para instalar as dependências, siga as instruções abaixo:
-
-1. Crie um ambiente virtual (recomendado):
-
-   - **Windows**:
-     ```
-     python -m venv venv
-     venv\Scripts\activate
-     ```
-   - **Linux/Mac**:
-     ```
-     python3 -m venv venv
-     source venv/bin/activate
-     ```
-
-2. Instale as dependências:
+1. Certifique-se de ter o Python 3.x instalado em seu sistema.
+2. Crie um ambiente virtual (venv) para isolar as dependências do projeto:
+   - **Windows**: `python -m venv venv` e `venv\Scripts\activate`
+   - **Linux/macOS**: `python3 -m venv venv` e `source venv/bin/activate`
+3. Instale as dependências do projeto:
    ```
    pip install -r requirements.txt
    ```
+4. Defina a variável de ambiente `ANTHROPIC_API_KEY` com sua chave de API do modelo Claude.
+5. Execute o script `main.py` para gerar e atualizar automaticamente a documentação do projeto.
 
-3. Configure a chave da API do Anthropic:
-   - Defina a variável de ambiente `ANTHROPIC_API_KEY` com a sua chave de API.
-
-4. Execute o projeto:
-   ```
-   python main.py
-   ```
+## Recursos
+- Geração automatizada de documentação a partir de comentários no código
+- Integração com ferramentas de CI/CD para atualização contínua da documentação
+- Interface web responsiva para visualização da documentação
+- Suporte a múltiplos formatos de saída (HTML, PDF, Markdown)

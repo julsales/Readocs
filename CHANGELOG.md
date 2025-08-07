@@ -22,3 +22,13 @@ Criação do README.md com as seguintes seções:
   - Instruções de instalação
   - Instruções para ativação do ambiente virtual (se aplicável)
 
+## [2025-08-07 14:02] - v0.1.0
+- Adicionada a seção de Introdução ao README.md
+- Adicionada a seção de Instalação ao README.md
+- Instruções para ativar o ambiente virtual (venv) incluídas
+
+## [2025-08-07 14:03] - 0.1.0
+- Adição de uma nova seção "Recursos" no README.md, listando as principais funcionalidades do projeto
+- Melhorias na seção de "Instalação" do README.md para tornar os passos mais claros
+- Nenhuma outra mudança significativa
+
