@@ -3,6 +3,7 @@ name: 📚 Gerar Documentação Automaticamente
 on:
   push:
     branches: [main, master]
+    # Solução simples: ignora pushes que só alteram documentação
     paths-ignore:
       - 'README.md'
       - 'CHANGELOG.md'
@@ -80,6 +81,30 @@ jobs:
           cd readocs
           python main.py
 
+      - name: 🔧 Substituir {{BADGE_SECTION}} pelo HTML de badges
+        run: |
+          # Pega automaticamente as informações do repositório
+          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          REPO_FULL="${{ github.repository }}"
+          
+          BADGE_HTML='<div align="center">
+
+          <img src="https://img.shields.io/github/repo-size/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/languages/count/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/forks/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/issues/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/issues-pr/'$REPO_FULL'?style=for-the-badge">
+          </div>
+          '
+
+          awk -v replacement="$BADGE_HTML" '
+            {
+              gsub(/\{\{BADGE_SECTION\}\}/, replacement)
+              print
+            }
+          ' README.md > README.tmp && mv README.tmp README.md
+          
       - name: 🔍 Verificar mudanças
         id: check_changes
         run: |
@@ -111,7 +136,7 @@ jobs:
           
           echo "✅ Push realizado para branch: ${{ env.branch_name }}"
 
-      - name: 📤 Criar Pull Request (se novo)
+      - name: 📤 Criar Pull Request para main (se novo)
         if: steps.check_changes.outputs.has_changes == 'true' && steps.check_pr.outputs.has_existing_pr == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -126,9 +151,13 @@ jobs:
           
           ### 📋 Detalhes:
           - **Trigger**: ${{ github.event_name }}
-          - **Branch**: ${{ github.ref_name }}
+          - **Branch de origem**: ${{ env.branch_name }}
+          - **Branch de destino**: main
           - **Commit**: ${{ github.sha }}
           - **Autor**: ${{ github.actor }}
+          
+          ### ⚠️ Revisão Necessária
+          Por favor, revise as mudanças antes de fazer o merge para a main.
           
           ---
           🤖 *Gerado automaticamente pelo GitHub Actions*"
@@ -136,9 +165,11 @@ jobs:
           pr_url=$(gh pr create \
             --title "📚 Atualização automática da documentação" \
             --body "$pr_body" \
+            --base main \
+            --head ${{ env.branch_name }} \
             --label "documentation")
 
-          echo "✅ Novo PR criado!"
+          echo "✅ Novo PR criado para merge na main!"
           echo "🔗 Verifique em: $pr_url"
 
       - name: 🔄 Atualizar PR existente
@@ -154,7 +185,8 @@ jobs:
           Nova atualização baseada no commit: \`${{ github.sha }}\`
           
           📅 Atualizado em: $(date)
-          👤 Autor do commit: ${{ github.actor }}"
+          👤 Autor do commit: ${{ github.actor }}
+          🎯 **Pronto para revisão e merge na main**"
           
           echo "✅ PR atualizado com sucesso!"
           echo "🔗 Verifique em: https://github.com/${{ github.repository }}/pull/${{ steps.check_pr.outputs.existing_pr }}"
@@ -162,14 +194,15 @@ jobs:
       - name: 📊 Resumo da execução
         run: |
           echo "## 📊 Resumo da Execução"
-          echo "- Branch utilizada: ${{ env.branch_name }}"
+          echo "- Branch de trabalho: ${{ env.branch_name }}"
+          echo "- Branch de destino: main"
           if [ "${{ steps.check_pr.outputs.has_existing_pr }}" == "true" ]; then
-            echo "- Ação: Atualização do PR #${{ steps.check_pr.outputs.existing_pr }}"
+            echo "- Ação: Atualização do PR #${{ steps.check_pr.outputs.existing_pr }} para merge na main"
           else
-            echo "- Ação: Criação de novo PR"
+            echo "- Ação: Criação de novo PR para merge na main"
           fi
           if [ "${{ steps.check_changes.outputs.has_changes }}" == "true" ]; then
-            echo "- Mudanças: ✅ Documentação atualizada"
+            echo "- Mudanças: ✅ Documentação atualizada e aguardando revisão"
           else
             echo "- Mudanças: 📝 Nenhuma mudança detectada"
           fi
