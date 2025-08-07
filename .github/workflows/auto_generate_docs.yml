@@ -18,6 +18,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
+          cd readocs
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
           
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
