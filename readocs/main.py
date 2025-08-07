@@ -115,7 +115,7 @@ def main():
         team.print_response(f"""
         Você é um agente que deve analisar completamente o projeto para gerar a documentação.
         A documentação deve ser toda em português e seguir as diretrizes do projeto.
-        Primeiro, coloque o nome do projeto, que é '{project_name}'.
+        Primeiro, coloque o nome do projeto, que é '{project_name}', com a primeira letra sendo a única maiúscula.
         Para fazer o README.md, você deve:
         1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
         2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
