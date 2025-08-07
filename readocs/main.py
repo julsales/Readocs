@@ -70,7 +70,31 @@ def get_next_version():
     except Exception as e:
         print(f"Erro ao ler CHANGELOG: {e}")
         return "0.1.0"
+    
+def forcar_badge_section_no_readme():
+    path = "README.md"
+    if not os.path.exists(path):
+        print("README.md não encontrado para aplicar hardcode.")
+        return
 
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    if content.startswith("{{BADGE_SECTION}}"):
+        print("✅ BADGE_SECTION já está presente corretamente.")
+        return
+
+    # Remove qualquer BADGE_SECTION perdido no meio do texto
+    content = content.replace("{{BADGE_SECTION}}", "")
+
+    # Garante o marcador no topo
+    content = "{{BADGE_SECTION}}\n" + content.lstrip()
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    print("✅ BADGE_SECTION foi forçado no topo do README.md (hardcode aplicado).")
+    
 def main():
     # Configura diretórios automaticamente
     project_path = setup_directories()
@@ -111,25 +135,33 @@ def main():
         ],
         markdown=True
     )
+    try:
+        team.print_response(f"""
+        Você é um agente que deve analisar completamente o projeto para gerar a documentação.
+        A documentação deve ser toda em português e seguir as diretrizes do projeto.
+        Primeiro, coloque o nome do projeto, que é '{project_name}', com a primeira letra sendo a única maiúscula.
+        Para fazer o README.md, você deve:
+        1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
+        2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
+        3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
+        4. Não é para citar a complexidade do projeto (Não é para citar se é simples ou complexo,etc), mas pode fazer um pequeno pitch sobre o que ele faz na Introdução.
+        5. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
+        6. Se houver imagens, mantenha-as no README.md, mas não é necessário criar uma seção de imagens, apenas mantenha as imagens que já existirem.
+
+        Diretrizes para o CHANGELOG.md:
+        1. Adicione uma nova entrada para a versão {next_version}.
+        2. O novo registro deve incluir a data de hoje ({current_date}).
+        3. Descreva as mudanças de forma clara e concisa, seguindo o padrão de formatação do CHANGELOG.md existente.
+        4. Relate aqui as mudanças que você fez no README.md, como a adição de seções ou melhorias na clareza.
+        5. Se não houver mudanças significativas, adicione uma entrada genérica como "Nenhuma mudança significativa".
+        """)
     
-    team.print_response(f"""
-    Você é um agente que deve analisar completamente o projeto para gerar a documentação.
-    A documentação deve ser toda em português e seguir as diretrizes do projeto.
-    Primeiro, coloque o nome do projeto, que é '{project_name}', com a primeira letra sendo a única maiúscula.
-    Para fazer o README.md, você deve:
-    1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
-    2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
-    3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
-    4. Não é para citar a complexidade do projeto (Não é para citar se é simples ou complexo,etc), mas pode fazer um pequeno pitch sobre o que ele faz na Introdução.
-    5. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
-    6. Se houver imagens, mantenha-as no README.md, mas não é necessário criar uma seção de imagens, apenas mantenha as imagens que já existirem.
-
-    Diretrizes para o CHANGELOG.md:
-    1. Adicione uma nova entrada para a versão {next_version}.
-    2. O novo registro deve incluir a data de hoje ({current_date}).
-    3. Descreva as mudanças de forma clara e concisa, seguindo o padrão de formatação do CHANGELOG.md existente.
-    4. Relate aqui as mudanças que você fez no README.md, como a adição de seções ou melhorias na clareza.
-    5. Se não houver mudanças significativas, adicione uma entrada genérica como "Nenhuma mudança significativa".
-    """)
-
+    except Exception as e:
+        print(f"❌ Erro na execução: {e}")
+        print("💡 Tente executar novamente. Se o erro persistir, pode ser um problema temporário da API.")
+        return
+    
+    print(f"\n✅ Documentação gerada!")
+    print(f"📄 README.md e CHANGELOG.md criados no diretório atual")
+    forcar_badge_section_no_readme()
 main()

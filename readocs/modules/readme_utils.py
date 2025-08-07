@@ -5,9 +5,8 @@ def update_readme(section_title: str, section_content: str, project_title: str =
     """Adiciona ou atualiza uma seção no README.md.
 
     Se a seção já existir, seu conteúdo será substituído. Caso contrário,
-    uma nova seção será adicionada no final. Garante que o marcador
-    {{BADGE_SECTION}} esteja no topo do arquivo.
-
+    uma nova seção será adicionada no final.
+    
     Args:
         section_title: O título da seção a ser atualizada.
         section_content: O novo conteúdo em markdown para a seção.
@@ -17,11 +16,10 @@ def update_readme(section_title: str, section_content: str, project_title: str =
         Uma mensagem de sucesso ou erro.
     """
     path = "README.md"
-    badge_header = f"{{{{BADGE_SECTION}}}}\n# {project_title}\n"
-
-    # 1. Se o README.md não existir, crie-o com o marcador e a nova seção.
+    
+    # 1. Se o README.md não existir, crie-o com o título do projeto e a nova seção.
     if not os.path.exists(path):
-        content = f"{badge_header}\n\n## {section_title}\n{section_content}\n"
+        content = f"# {project_title}\n\n## {section_title}\n{section_content}\n"
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
         return f"README.md criado com a seção '{section_title}'."
@@ -30,31 +28,36 @@ def update_readme(section_title: str, section_content: str, project_title: str =
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 3. Garante que o marcador esteja no topo
-    if not content.startswith("{{BADGE_SECTION}}"):
-        # Remove qualquer ocorrência perdida de BADGE_SECTION fora do topo
-        content = content.replace("{{BADGE_SECTION}}", "")
-        # Remove título duplicado
-        content = re.sub(r"^# .*\n", "", content, count=1)
-        content = badge_header + "\n" + content.lstrip()
-
-    # 4. Atualiza ou adiciona a seção
+    # Define o padrão para encontrar a seção
+    # Ele busca por um título de seção e captura tudo que vem depois, até o próximo título ou o final do arquivo.
+    # A flag re.escape() garante que caracteres especiais no título não causem problemas.
     pattern = r"(^##\s+" + re.escape(section_title) + r")\n.*?(?=\n## |\Z)"
-    new_section = f"## {section_title}\n{section_content}\n"
 
+    # Prepara a nova seção para a substituição
+    # A string de substituição precisa de tratamento para evitar 'bad escape'
+    new_section_content_with_title = f"## {section_title}\n{section_content}\n"
+
+    # 3. Tenta encontrar e substituir a seção.
     if re.search(pattern, content, re.DOTALL | re.MULTILINE):
-        content = re.sub(
+        # O re.sub pode falhar se new_section_content_with_title tiver escapes inválidos.
+        # A solução mais segura é usar uma função de callback ou escapar os caracteres.
+        
+        # Correção: use uma função de callback (lambda) que retorna a string de substituição.
+        # O argumento 'm' é o match object. Usar um callback impede o re.sub de interpretar
+        # a string de substituição como uma regex.
+        updated_content = re.sub(
             pattern,
-            lambda m: new_section,
+            lambda m: new_section_content_with_title,
             content,
             flags=re.DOTALL | re.MULTILINE
         )
-        result_msg = f"Seção '{section_title}' atualizada com sucesso."
+        
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(updated_content)
+        return f"Seção '{section_title}' atualizada com sucesso."
     else:
-        content += f"\n{new_section}"
-        result_msg = f"Seção '{section_title}' adicionada com sucesso."
-
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(content)
-
-    return result_msg
+        # 4. Se a seção não for encontrada, adicione-a no final do arquivo.
+        content += f"\n{new_section_content_with_title}"
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
+        return f"Seção '{section_title}' adicionada com sucesso."
