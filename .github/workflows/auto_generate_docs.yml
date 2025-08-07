@@ -28,8 +28,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Caminho correto
-
+          pip install -r requirements.txt 
+          
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
         run: |
@@ -115,15 +115,13 @@ jobs:
           ---
           🤖 *Gerado automaticamente pelo GitHub Actions*"
 
-          pr_number=$(gh pr create \
+          pr_url=$(gh pr create \
             --title "📚 Atualização automática da documentação" \
             --body "$pr_body" \
-            --label "documentation,automated" \
-            # --assignee julsales \  # Descomente para assignee fixo
-            --json number --jq .number)
+            --label "documentation")
 
-          echo "✅ PR #$pr_number criado com sucesso!"
-          echo "🔗 Verifique em: https://github.com/${{ github.repository }}/pull/$pr_number"
+          echo "✅ PR criado com sucesso!"
+          echo "🔗 Verifique em: $pr_url"
 
       - name: ⏭️ Skip - PR já existe
         if: steps.check_pr.outputs.should_skip == 'true'
