@@ -5,9 +5,8 @@
 <img src="https://img.shields.io/github/forks/julsales/Readocs?style=for-the-badge">
 <img src="https://img.shields.io/github/issues/julsales/Readocs?style=for-the-badge">
 <img src="https://img.shields.io/github/issues-pr/julsales/Readocs?style=for-the-badge">
-<br><br>
-<img src="https://via.placeholder.com/480x320.png?text=Imagem+do+Projeto" height="320">
-</div>
+
+
 # readocs
 
 ## Introdução
