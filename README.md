@@ -9,6 +9,7 @@
 
 # readocs
 
+
 ## Introdução
 Este é um projeto Python que utiliza a biblioteca Agno para coordenar uma equipe de agentes (doc_agent e curation_agent) que trabalham em conjunto para gerar a documentação do projeto de forma automatizada. O projeto é estruturado de forma padrão, com um diretório principal `readocs` contendo os arquivos-chave como `main.py` e `requirements.txt`.
 
