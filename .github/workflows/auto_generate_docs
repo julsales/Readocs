@@ -1,0 +1,186 @@
+name: Gerar Documentação Automática
+
+on:
+  push:
+    branches: [ main, master ]  # Roda a cada push na branch principal
+    paths-ignore:
+      - 'README.md'      # Ignora se só mudou README
+      - 'CHANGELOG.md'   # Ignora se só mudou CHANGELOG
+      - '.github/**'     # Ignora mudanças nos workflows
+  
+  # Permite execução manual também
+  workflow_dispatch:
+    inputs:
+      mensagem_commit:
+        description: 'Mensagem personalizada para o PR'
+        required: false
+        default: 'docs: atualização automática da documentação'
+
+jobs:
+  gerar-documentacao:
+    runs-on: ubuntu-latest
+    
+    # Evita rodar se for um bot que fez o commit
+    if: github.actor != 'github-actions[bot]' && github.actor != 'dependabot[bot]'
+    
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Necessário para ver histórico
+
+      - name: Configurar Ambiente Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar Dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verificar se já existe PR de documentação
+        id: check_pr
+        run: |
+          # Verifica se já existe um PR aberto para documentação
+          existing_pr=$(gh pr list --state open --label "documentation" --json number --jq '.[0].number // empty')
+          
+          if [ ! -z "$existing_pr" ]; then
+            echo "existing_pr=$existing_pr" >> $GITHUB_OUTPUT
+            echo "📋 PR #$existing_pr já existe para documentação"
+          else
+            echo "existing_pr=" >> $GITHUB_OUTPUT
+            echo "✨ Nenhum PR de documentação encontrado"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Criar branch para documentação
+        if: steps.check_pr.outputs.existing_pr == ''
+        run: |
+          # Criar branch única com timestamp
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          branch_name="docs/auto-update-$timestamp"
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git checkout -b $branch_name
+          echo "branch_name=$branch_name" >> $GITHUB_ENV
+          echo "🌳 Branch criada: $branch_name"
+
+      - name: Executar Agentes de Documentação
+        if: steps.check_pr.outputs.existing_pr == ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          COMMIT_MESSAGE: ${{ github.event.inputs.mensagem_commit || 'docs: atualização automática da documentação' }}
+        run: |
+          cd readocs
+          echo "🤖 Gerando documentação..."
+          python main.py
+
+      - name: Verificar mudanças e criar PR
+        if: steps.check_pr.outputs.existing_pr == ''
+        id: create_pr
+        run: |
+          if git diff --quiet HEAD -- README.md CHANGELOG.md; then
+            echo "📝 Nenhuma mudança detectada na documentação"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Mudanças detectadas, criando PR..."
+            
+            # Commit das mudanças
+            git add README.md CHANGELOG.md
+            
+            # Mensagem do commit baseada no último commit do usuário
+            last_commit=$(git log -1 --pretty=format:"%s" HEAD~1)
+            commit_msg="${{ github.event.inputs.mensagem_commit || 'docs: atualização automática da documentação' }}"
+            
+            git commit -m "$commit_msg
+
+            🤖 Documentação gerada automaticamente baseada em: $last_commit
+            
+            Mudanças detectadas:
+            $(git diff --name-only HEAD~1 | grep -E '\.(py|md|txt|yml|yaml)$' | head -10)
+            "
+            
+            # Push da branch
+            git push origin ${{ env.branch_name }}
+            
+            # Criar PR
+            pr_body="## 📚 Atualização Automática da Documentação
+
+            Esta documentação foi gerada automaticamente pelos agentes IA baseada nas mudanças recentes no código.
+
+            ### 🔍 Baseado no commit:
+            **$last_commit** ($(git log -1 --pretty=format:"%h" HEAD~1))
+
+            ### 📋 Arquivos atualizados:
+            $(git diff --name-only HEAD~1 | grep -E 'README\.md|CHANGELOG\.md' | sed 's/^/- /')
+
+            ### ✅ Revisão necessária:
+            - [ ] README.md está correto e completo
+            - [ ] CHANGELOG.md tem as informações adequadas  
+            - [ ] Linguagem está em português
+            - [ ] Não há informações sensíveis expostas
+
+            ### 🤖 Como foi gerado:
+            - **Agente**: Claude Haiku (Anthropic)
+            - **Trigger**: Push em ${{ github.ref_name }}
+            - **Workflow**: ${{ github.workflow }}
+
+            ---
+            💡 **Dica**: Se aprovar, faça merge. Se não gostar, feche este PR e a documentação não será alterada."
+
+            # Criar o PR
+            pr_number=$(gh pr create \
+              --title "📚 Atualização automática da documentação" \
+              --body "$pr_body" \
+              --label "documentation,automated" \
+              --assignee ${{ github.actor }} \
+              --json number --jq .number)
+            
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+            echo "✅ PR #$pr_number criado com sucesso!"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comentar no PR existente (se houver)
+        if: steps.check_pr.outputs.existing_pr != ''
+        run: |
+          pr_number="${{ steps.check_pr.outputs.existing_pr }}"
+          
+          comment="🔄 **Nova tentativa de atualização detectada**
+
+          Commit que disparou: **${{ github.event.head_commit.message }}** (${{ github.sha }})
+          
+          ℹ️ Este PR ainda está aberto, então não foi criado um novo. Se quiser regenerar a documentação:
+          1. Feche este PR atual
+          2. Faça um novo push ou execute o workflow manualmente
+          
+          Ou execute manualmente: \`gh workflow run \"${{ github.workflow }}\"\`"
+          
+          gh pr comment $pr_number --body "$comment"
+          echo "💬 Comentário adicionado ao PR #$pr_number"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resumo da Execução
+        if: always()
+        run: |
+          echo "## 📊 Resumo da Execução" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY  
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Autor**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_pr.outputs.existing_pr }}" != "" ]; then
+            echo "- **Status**: ℹ️ PR #${{ steps.check_pr.outputs.existing_pr }} já existe" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.create_pr.outputs.changes }}" == "true" ]; then
+            echo "- **Status**: ✅ PR #${{ steps.create_pr.outputs.pr_number }} criado" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status**: 📝 Nenhuma mudança necessária" >> $GITHUB_STEP_SUMMARY
+          fi
