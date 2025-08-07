@@ -118,8 +118,8 @@ def main():
     1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
     2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
     3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
-    4. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
-    
+    4. Não é para citar a complexidade do projeto (Não é para citar se é simples ou complexo,etc), mas pode fazer um pequeno pitch sobre o que ele faz na Introdução.
+    5. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
     Diretrizes para o CHANGELOG.md:
     1. Adicione uma nova entrada para a versão {next_version}.
     2. O novo registro deve incluir a data de hoje ({current_date}).
