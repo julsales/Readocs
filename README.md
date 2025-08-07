@@ -1,44 +1,22 @@
 # Readocs
 
 ## Introdução
-O projeto 'readocs' é um sistema de documentação automatizado que utiliza uma equipe de agentes de Inteligência Artificial para gerar e manter a documentação técnica de um projeto. Ele faz uso da biblioteca 'agno' para orquestrar os agentes, que incluem um agente de documentação e um agente de curadoria.
+readocs é um sistema de documentação automatizada usando agentes de inteligência artificial. O projeto utiliza a biblioteca Anthropic para acessar o modelo de linguagem Claude e gerar documentação técnica de forma inteligente e curada.
 
-O ponto de entrada do projeto é o arquivo 'main.py', que é responsável por configurar os diretórios, determinar a próxima versão do projeto e inicializar a equipe de agentes. Os agentes são configurados com instruções específicas para gerar a documentação, seguindo diretrizes como clareza, concisão e uso de Markdown.
+O sistema é composto por dois agentes principais:
+- **Doc Agent**: Responsável por analisar o projeto e gerar a documentação técnica, como README.md e CHANGELOG.md.
+- **Curation Agent**: Responsável por revisar e aprimorar a documentação gerada pelo Doc Agent, garantindo que siga as diretrizes do projeto.
 
 ## Instalação
-## Instalação
+Para instalar e executar o projeto readocs, siga as instruções abaixo:
 
-O projeto 'readocs' não possui um arquivo centralizado de dependências (como `requirements.txt`). No entanto, é provável que ele utilize algumas bibliotecas Python, como a `agno` mencionada no código.
-
-Para instalar o projeto, siga estas etapas:
-
-1. Clone o repositório do projeto:
-```
-git clone https://github.com/seu-usuario/readocs.git
-```
-
-2. Crie e ative um ambiente virtual (recomendado):
-
-**Windows**:
-```
-python -m venv venv
-venv\Scripts\activate
-```
-
-**Linux/macOS**:
-```
-python3 -m venv venv
-source venv/bin/activate
-```
-
-3. Instale as dependências necessárias:
-```
-pip install -r requirements.txt
-```
-
-4. Execute o script principal:
-```
-python main.py
-```
-
-Observe que, como não foi encontrado um arquivo `requirements.txt`, você pode precisar instalar manualmente as bibliotecas utilizadas pelo projeto, como a `agno`.
+1. Certifique-se de ter o Python 3.x instalado em seu sistema.
+2. Crie um ambiente virtual (recomendado):
+   - **Windows**: `python -m venv venv` e depois `venv\Scripts\activate`
+   - **Linux/macOS**: `python3 -m venv venv` e depois `source venv/bin/activate`
+3. Instale as dependências do projeto:
+   - Não foi possível encontrar um arquivo `requirements.txt`, então você precisará instalar as dependências manualmente. Elas incluem:
+     - [Anthropic](https://www.anthropic.com/)
+     - [python-dotenv](https://github.com/theskumar/python-dotenv)
+4. Defina a variável de ambiente `ANTHROPIC_API_KEY` com sua chave de API do Anthropic.
+5. Execute o script `main.py` para gerar a documentação automatizada.
