@@ -30,7 +30,7 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           COMMIT_MESSAGE: ${{ github.event.inputs.mensagem_commit }}
         run: |
-          python main.py
+          python ./main.py
 
       - name: Revisar e Fazer o Commit das Mudanças
         run: |
