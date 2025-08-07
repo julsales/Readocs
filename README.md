@@ -1,5 +1,5 @@
 # Readocs
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/840aea5f-1132-4b43-90ec-9ef40eb30388" />
+
 ## Introdução
 Este projeto tem como objetivo gerar automaticamente a documentação técnica de um sistema, usando uma abordagem baseada em agentes. Ele utiliza a API do modelo de linguagem Claude, da Anthropic, para processar instruções e gerar o conteúdo do README e CHANGELOG.
 
