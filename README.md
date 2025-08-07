@@ -1,30 +1,43 @@
 # Readocs
 
 ## Introdução
-## Introdução
-O projeto `readocs` é um sistema de documentação técnica automatizada utilizando agentes de inteligência artificial. Ele inclui dois agentes principais:
+Este projeto é um sistema de documentação automatizada que utiliza agentes de Inteligência Artificial para gerar e manter a documentação técnica do projeto.
 
-- `doc_agent`: Responsável por gerar e atualizar a documentação técnica do projeto.
-- `curation_agent`: Responsável por revisar e curar a documentação gerada pelo `doc_agent`.
+O código principal está localizado na pasta 'readocs' e inclui os seguintes módulos:
+- `agents`: contém os agentes responsáveis pela geração e curadoria da documentação
+- `main.py`: script principal que coordena a atuação dos agentes
 
-O projeto é configurado com algumas variáveis como `PROJECT_FOLDER` e `ROOT_DIR` que podem ser ajustadas para outros projetos.
+O projeto utiliza a API do Claude, um modelo de linguagem da Anthropic, para executar as tarefas de documentação. Antes de executar o projeto, é necessário configurar a variável de ambiente `ANTHROPIC_API_KEY` com sua chave de API do Claude.
 
 ## Instalação
 ## Instalação
 
-Dependências:
-- Python 3.x
-- Bibliotecas Python listadas em `requirements.txt`
+1. Clone o repositório:
+```
+git clone https://github.com/seu-usuario/readocs.git
+```
 
-Para instalar o projeto, siga os seguintes passos:
+2. Crie e ative um ambiente virtual (recomendado):
+```
+# Windows
+python -m venv venv
+venv\Scripts\activate
 
-1. Certifique-se de ter o Python 3.x instalado em seu sistema.
-2. Crie um ambiente virtual (recomendado):
-   - **Windows**: `python -m venv venv` e `venv\Scripts\activate`
-   - **Linux/macOS**: `python3 -m venv venv` e `source venv/bin/activate`
-3. Instale as dependências do projeto:
-   ```
-   pip install -r requirements.txt
-   ```
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Instale as dependências:
+```
+pip install -r requirements.txt
+```
+
 4. Defina a variável de ambiente `ANTHROPIC_API_KEY` com sua chave de API do Claude.
-5. Execute o script `main.py` para gerar a documentação.
+
+5. Execute o script principal:
+```
+python main.py
+```
+
+E pronto, o sistema de documentação automatizada está configurado e pronto para uso!
