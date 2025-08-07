@@ -1,39 +1,44 @@
 # Readocs
 
 ## Introdução
-O projeto Readocs é uma aplicação Python que utiliza uma equipe de agentes inteligentes para gerar automaticamente a documentação de projetos, incluindo um README.md e um CHANGELOG.md. O objetivo é manter a documentação atualizada e alinhada com as melhores práticas.
+O projeto 'readocs' é um sistema de documentação automatizado que utiliza uma equipe de agentes de Inteligência Artificial para gerar e manter a documentação técnica de um projeto. Ele faz uso da biblioteca 'agno' para orquestrar os agentes, que incluem um agente de documentação e um agente de curadoria.
 
-Os principais componentes do projeto são:
-
-- Módulos de agentes inteligentes (doc_agent, curation_agent) que utilizam a API da Anthropic (modelo Claude) para gerar respostas em markdown.
-- Um sistema de gerenciamento de equipe (agno.Team) para coordenar a atuação dos agentes.
-- Lógica em `main.py` para configurar o ambiente, determinar a próxima versão e executar os agentes.
+O ponto de entrada do projeto é o arquivo 'main.py', que é responsável por configurar os diretórios, determinar a próxima versão do projeto e inicializar a equipe de agentes. Os agentes são configurados com instruções específicas para gerar a documentação, seguindo diretrizes como clareza, concisão e uso de Markdown.
 
 ## Instalação
 ## Instalação
 
-Para instalar e executar o projeto Readocs, siga as instruções abaixo:
+O projeto 'readocs' não possui um arquivo centralizado de dependências (como `requirements.txt`). No entanto, é provável que ele utilize algumas bibliotecas Python, como a `agno` mencionada no código.
 
-1. Certifique-se de ter o Python 3.x instalado em seu sistema.
-2. Crie e ative um ambiente virtual (VENV) para isolar as dependências do projeto:
-   - **Windows:**
-     ```
-     python -m venv venv
-     venv\Scripts\activate
-     ```
-   - **Linux/macOS:**
-     ```
-     python3 -m venv venv
-     source venv/bin/activate
-     ```
-3. Instale as dependências do projeto:
-   ```
-   pip install -r requirements.txt
-   ```
-4. Defina a variável de ambiente `ANTHROPIC_API_KEY` com sua chave de API da Anthropic.
-5. Execute o script `main.py` para gerar a documentação:
-   ```
-   python main.py
-   ```
+Para instalar o projeto, siga estas etapas:
 
-O README.md e o CHANGELOG.md serão atualizados no diretório raiz do projeto.
+1. Clone o repositório do projeto:
+```
+git clone https://github.com/seu-usuario/readocs.git
+```
+
+2. Crie e ative um ambiente virtual (recomendado):
+
+**Windows**:
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+**Linux/macOS**:
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Instale as dependências necessárias:
+```
+pip install -r requirements.txt
+```
+
+4. Execute o script principal:
+```
+python main.py
+```
+
+Observe que, como não foi encontrado um arquivo `requirements.txt`, você pode precisar instalar manualmente as bibliotecas utilizadas pelo projeto, como a `agno`.
