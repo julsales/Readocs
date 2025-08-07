@@ -1,8 +1,12 @@
 # Changelog
 
-## [2025-08-07 13:27] - 0.1.0
-- Criação inicial do README.md com seções de Introdução e Instalação
-- Adicionadas instruções para ativação de ambiente virtual
+## [2025-08-07 12:32] - Versão 1.0.0
+Primeira versão do projeto, com atualização da documentação.
+
+## [2025-08-07 12:33] - Versão 0.0.1
+- Criação inicial do projeto
+- Adicionadas as seções básicas do README.md
+- Criado o CHANGELOG.md com a entrada da versão 0.0.1
 
 ## [2025-08-07 13:30] - 0.1.0
 - Adicionada seção de Introdução no README.md, descrevendo o propósito do projeto Readocs.

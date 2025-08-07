@@ -1,5 +1,6 @@
 import os
 import re
+from .readme_cleaner import ensure_clean_readme
 
 def update_readme(section_title: str, section_content: str, project_title: str = "Projeto Readocs") -> str:
     """Adiciona ou atualiza uma seção no README.md.
@@ -16,6 +17,10 @@ def update_readme(section_title: str, section_content: str, project_title: str =
         Uma mensagem de sucesso ou erro.
     """
     path = "README.md"
+    
+    # CORREÇÃO AUTOMÁTICA: Limpa duplicatas antes de qualquer modificação
+    if os.path.exists(path):
+        ensure_clean_readme(path)
     
     # 1. Se o README.md não existir, crie-o com o título do projeto e a nova seção.
     if not os.path.exists(path):
@@ -54,10 +59,18 @@ def update_readme(section_title: str, section_content: str, project_title: str =
         
         with open(path, "w", encoding="utf-8") as f:
             f.write(updated_content)
+        
+        # CORREÇÃO PÓS-PROCESSAMENTO: Limpa duplicatas que possam ter sido criadas
+        ensure_clean_readme(path)
+            
         return f"Seção '{section_title}' atualizada com sucesso."
     else:
         # 4. Se a seção não for encontrada, adicione-a no final do arquivo.
         content += f"\n{new_section_content_with_title}"
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
+        
+        # CORREÇÃO PÓS-PROCESSAMENTO: Limpa duplicatas que possam ter sido criadas
+        ensure_clean_readme(path)
+            
         return f"Seção '{section_title}' adicionada com sucesso."
