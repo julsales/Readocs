@@ -14,14 +14,14 @@ jobs:
       - name: 🔄 Checkout do repositório
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Busca todo o histórico para comparações
+          fetch-depth: 0  
 
       - name: 🛠️ Instalar dependências necessárias
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
-          pip install -r readocs/requirements.txt  # Caminho correto
+          pip install -r requirements.txt  
           
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
