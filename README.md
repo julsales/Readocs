@@ -1,48 +1,26 @@
-# Readocs
+<div align="center">
+
+<img src="https://img.shields.io/github/repo-size/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/languages/count/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/forks/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/issues/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/issues-pr/julsales/Readocs?style=for-the-badge">
+<br><br>
+<img src="https://via.placeholder.com/480x320.png?text=Imagem+do+Projeto" height="320">
+</div>
+# readocs
 
 ## Introdução
-Este projeto tem como objetivo gerar automaticamente a documentação técnica de um sistema, usando uma abordagem baseada em agentes. Ele utiliza a API do modelo de linguagem Claude, da Anthropic, para processar instruções e gerar o conteúdo do README e CHANGELOG.
-
-- `modules`: provavelmente contém módulos/pacotes usados pelo projeto
-- `agents`: provavelmente contém os agentes usados para gerar a documentação
-- `main.py`: script principal que configura o ambiente e executa os agentes
+Este é um projeto Python que utiliza a biblioteca Agno para coordenar uma equipe de agentes (doc_agent e curation_agent) que trabalham em conjunto para gerar a documentação do projeto de forma automatizada. O projeto é estruturado de forma padrão, com um diretório principal `readocs` contendo os arquivos-chave como `main.py` e `requirements.txt`.
 
 ## Instalação
-
-### Pré-requisitos
-- Python 3.x
-- Pacotes listados em `requirements.txt`
-
-### Instruções
-1. Clone o repositório:
-```
-git clone https://github.com/seu-usuario/seu-projeto.git
-```
-
-2. Crie e ative um ambiente virtual (recomendado):
-
-   - **Windows**:
-     ```
-     python -m venv venv
-     venv\Scripts\activate
-     ```
-   - **Linux/macOS**:
-     ```
-     python3 -m venv venv
-     source venv/bin/activate
-     ```
-
-3. Instale as dependências:
-```
-pip install -r requirements.txt
-```
-
-4. Configure a chave da API do Anthropic:
-```
-export ANTHROPIC_API_KEY=sua-chave-api
-```
-
-5. Execute o script principal:
-```
-python main.py
-```
+1. Certifique-se de ter o Python 3 instalado em seu sistema.
+2. Crie e ative um ambiente virtual (VENV):
+   - Windows: `python -m venv venv` e `venv\Scripts\activate`
+   - Linux/macOS: `python3 -m venv venv` e `source venv/bin/activate`
+3. Instale as dependências do projeto:
+   ```
+   pip install -r requirements.txt
+   ```
+4. Configure a variável de ambiente `ANTHROPIC_API_KEY` com sua chave de API do Claude.
+5. Execute o arquivo `main.py` para gerar a documentação.
