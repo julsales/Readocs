@@ -51,3 +51,8 @@ Criação do README.md com as seguintes seções:
 - Adicionada seção de Introdução no README.md
 - Adicionada seção de Instalação no README.md, com instruções para ativar o ambiente virtual
 
+## [2025-08-07 16:02] - Versão 0.0.1
+- Adicionado: Seção de "Sobre o Projeto" no README.md
+- Adicionado: Seção de "Instalação" no README.md com instruções detalhadas
+- Corrigido: Remoção de seções duplicadas no README.md
+
