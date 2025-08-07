@@ -95,9 +95,9 @@ jobs:
           <img src="https://img.shields.io/github/forks/'$REPO_FULL'?style=for-the-badge">
           <img src="https://img.shields.io/github/issues/'$REPO_FULL'?style=for-the-badge">
           <img src="https://img.shields.io/github/issues-pr/'$REPO_FULL'?style=for-the-badge">
-          <br><br>
-          <img src="https://via.placeholder.com/480x320.png?text=Imagem+do+Projeto" height="320">
-          </div>'
+          </div>
+          
+          '
 
           awk -v replacement="$BADGE_HTML" '
             {
