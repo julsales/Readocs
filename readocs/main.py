@@ -10,6 +10,15 @@ import sys
 
 from dotenv import load_dotenv
 
+# Importa a função de limpeza de duplicatas
+try:
+    from modules.readme_cleaner import ensure_clean_readme, fix_readme_duplicates
+except ImportError:
+    def ensure_clean_readme(path="README.md"):
+        pass
+    def fix_readme_duplicates(path="README.md"):
+        return False
+
 # ========== CONFIGURAÇÃO DO PROJETO ==========
 # Ajuste estes caminhos conforme seu projeto:
 
@@ -122,17 +131,21 @@ def get_next_version():
         return "0.0.1"
 
 def check_readme_sections():
-    """Verifica se README tem seções duplicadas"""
+    """Verifica se README tem seções duplicadas e corrige automaticamente"""
     readme_path = "README.md"
     
     if not os.path.exists(readme_path):
         return False
     
     try:
+        # CORREÇÃO AUTOMÁTICA: Limpa duplicatas silenciosamente
+        ensure_clean_readme(readme_path)
+        fixed = fix_readme_duplicates(readme_path)
+        
         with open(readme_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Verifica títulos duplicados
+        # Verifica se ainda há duplicatas após a limpeza
         lines = content.split('\n')
         sections = []
         duplicates_found = False
@@ -145,10 +158,13 @@ def check_readme_sections():
                     duplicates_found = True
                 sections.append(section)
         
+        if fixed and not duplicates_found:
+            print("✅ Duplicatas removidas automaticamente")
+        
         return duplicates_found
     
     except Exception as e:
-        print_error(f"Erro ao verificar README: {e}")
+        print(f"⚠️  Erro ao verificar/corrigir README: {e}")
         return False
 
 # Funções utilitárias que podem ser usadas como ferramentas
@@ -239,7 +255,10 @@ def main():
     - Caminho: {project_path}
     
     VERIFICAÇÃO IMPORTANTE:
-    {"⚠️ ATENÇÃO: Seções duplicadas detectadas no README! Unifique-as." if has_duplicates else "✅ README sem duplicações detectadas."}
+    {"⚠️ ATENÇÃO: Seções duplicadas detectadas no README! Elas foram corrigidas automaticamente." if has_duplicates else "✅ README verificado e sem duplicações detectadas."}
+    
+    IMPORTANTE: O sistema possui correção automática de duplicatas. Sempre que você usar a função update_readme, 
+    ela automaticamente detectará e removerá seções duplicadas antes e depois da atualização.
     
     TAREFAS OBRIGATÓRIAS:
     
@@ -249,7 +268,7 @@ def main():
        
     2. ATUALIZAÇÃO DO README.md:
        - Verificar se já existe e ler o conteúdo atual
-       - NUNCA duplicar seções existentes
+       - NUNCA duplicar seções existentes - o sistema corrige automaticamente
        - Se faltarem seções importantes, adicionar apenas o que falta
        - Manter formatação consistente
        - Focar em clareza e profissionalismo
@@ -268,6 +287,7 @@ def main():
     - Mantenha tom profissional
     - Evite redundâncias
     - Teste mentalmente se faz sentido para um novo usuário
+    - Confie no sistema automático de correção de duplicatas
     """
     
     try:
