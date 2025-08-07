@@ -1,21 +1,51 @@
 # Readocs
 
 ## Introdução
-Este é um projeto de agentes que tem como objetivo atualizar automaticamente a documentação técnica com curadoria humana. O código principal está localizado no diretório `./readocs` e inclui os seguintes arquivos:
+Este projeto tem como objetivo gerar automaticamente a documentação técnica de um sistema, usando uma abordagem baseada em agentes. Ele utiliza a API do modelo de linguagem Claude, da Anthropic, para processar instruções e gerar o conteúdo do README e CHANGELOG.
 
-- `main.py`: O arquivo principal que configura os agentes e gera a documentação.
-- `agents/`: Diretório com os agentes responsáveis pela geração e atualização da documentação.
+O projeto possui uma estrutura simples, com apenas alguns arquivos e diretórios:
+
+- `modules`: provavelmente contém módulos/pacotes usados pelo projeto
+- `agents`: provavelmente contém os agentes usados para gerar a documentação
+- `main.py`: script principal que configura o ambiente e executa os agentes
 
 ## Instalação
-Para instalar e executar este projeto, siga as etapas abaixo:
+## Instalação
 
-1. Certifique-se de ter o Python 3.x instalado em seu sistema.
-2. Clone este repositório para o seu computador.
-3. Navegue até o diretório do projeto (`./readocs`) no terminal.
-4. Crie e ative um ambiente virtual (virtualenv, venv, etc).
-   - No Windows, execute `python -m venv venv` e depois `venv\Scripts\activate`.
-   - No Linux/macOS, execute `python3 -m venv venv` e depois `source venv/bin/activate`.
-5. Instale as dependências do projeto:
-   - Não foi possível encontrar um arquivo `requirements.txt`, então você precisará instalar manualmente as dependências necessárias.
-6. Configure a variável de ambiente `ANTHROPIC_API_KEY` com sua chave da API do Anthropic.
-7. Execute o arquivo `main.py` para gerar a documentação automaticamente.
+### Pré-requisitos
+- Python 3.x
+- Pacotes listados em `requirements.txt`
+
+### Instruções
+1. Clone o repositório:
+```
+git clone https://github.com/seu-usuario/seu-projeto.git
+```
+
+2. Crie e ative um ambiente virtual (recomendado):
+
+   - **Windows**:
+     ```
+     python -m venv venv
+     venv\Scripts\activate
+     ```
+   - **Linux/macOS**:
+     ```
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+
+3. Instale as dependências:
+```
+pip install -r requirements.txt
+```
+
+4. Configure a chave da API do Anthropic:
+```
+export ANTHROPIC_API_KEY=sua-chave-api
+```
+
+5. Execute o script principal:
+```
+python main.py
+```
