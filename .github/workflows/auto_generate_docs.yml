@@ -5,7 +5,8 @@ on:
     branches: [main, master]
     # Solução simples: ignora pushes que só alteram documentação
     paths-ignore:
-      - 'README.md'
+      - '.github/**'
+      - '.gitignore'
       - 'CHANGELOG.md'
       - 'docs/**'
   workflow_dispatch:
