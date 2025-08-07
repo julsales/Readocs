@@ -5,6 +5,12 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Adiciona permissões necessárias
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   doc-update:
     name: Atualizar documentação automaticamente
@@ -14,14 +20,15 @@ jobs:
       - name: 🔄 Checkout do repositório
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  
+          fetch-depth: 0  # Busca todo o histórico para comparações
+          token: ${{ secrets.GITHUB_TOKEN }}  # Token explícito
 
       - name: 🛠️ Instalar dependências necessárias
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  
+          pip install -r readocs/requirements.txt  # Caminho correto
           
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
