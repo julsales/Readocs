@@ -20,206 +20,101 @@ except ImportError:
         return False
 
 # ========== CONFIGURAÇÃO DO PROJETO ==========
-# Ajuste estes caminhos conforme seu projeto:
-
-PROJECT_FOLDER = "readocs"  # Nome da pasta com o código
-ROOT_DIR = ".."             # Onde criar README/CHANGELOG (.. = pasta pai)
-
-# Para outros projetos, mude apenas essas variáveis:
-# PROJECT_FOLDER = "src"     # ou "app", "backend", etc.
-# ROOT_DIR = "."             # ou "../..", etc.
-
+PROJECT_FOLDER = "readocs"
+ROOT_DIR = ".."
 # =============================================
 
 def print_header():
-    """Exibe cabeçalho bonito do programa"""
-    print("=" * 60)
-    print("🚀  READOCS - DOCUMENTAÇÃO AUTOMÁTICA COM IA  🚀")
-    print("=" * 60)
-    print("📝 Sistema inteligente de geração de documentação")
-    print("🤖 Powered by Anthropic Claude AI")
-    print("=" * 60)
+    print("=" * 50)
+    print("🚀  READOCS - DOCUMENTAÇÃO PERSONALIZADA  🚀")
+    print("=" * 50)
     print()
 
-def print_step(step, total, message, status="🔄"):
-    """Exibe progresso de forma bonita"""
-    progress = int((step / total) * 40)
-    bar = "█" * progress + "░" * (40 - progress)
-    percentage = int((step / total) * 100)
-    print(f"{status} [{bar}] {percentage:3d}% | {message}")
-
-def print_success(message):
-    """Exibe mensagem de sucesso"""
-    print(f"\n✅ {message}")
-
-def print_error(message):
-    """Exibe mensagem de erro"""
-    print(f"\n❌ {message}")
-
-def print_info(message):
-    """Exibe informação"""
-    print(f"ℹ️  {message}")
+def print_step(step, total, message):
+    print(f"[{step}/{total}] {message}")
 
 def setup_directories():
-    """Configura diretórios de forma inteligente"""
     current = Path.cwd()
     
-    print_step(1, 8, "Configurando diretórios do projeto...")
-    
-    # Se já estamos no diretório que tem o PROJECT_FOLDER, vai para o pai
     if (current / PROJECT_FOLDER).exists():
-        target_root = current
         project_path = f"./{PROJECT_FOLDER}"
-    
-    # Se estamos dentro do PROJECT_FOLDER, sobe um nível  
     elif current.name == PROJECT_FOLDER:
-        target_root = current.parent
+        os.chdir(current.parent)
         project_path = f"./{PROJECT_FOLDER}"
-        os.chdir(target_root)
-    
-    # Caso geral: usa ROOT_DIR configurado
     else:
-        target_root = Path(ROOT_DIR).resolve()
+        os.chdir(Path(ROOT_DIR).resolve())
         project_path = f"./{PROJECT_FOLDER}"
-        os.chdir(target_root)
     
-    print(f"📁 Diretório raiz: {os.getcwd()}")
-    print(f"🔍 Código analisado: {project_path}")
-    print()
-    
+    print(f"📁 Analisando: {project_path}")
     return project_path
 
 def get_next_version():
-    """Determina a próxima versão baseada no CHANGELOG existente"""
-    changelog_path = "CHANGELOG.md"
-    
-    print_step(2, 8, "Analisando versões existentes...")
-    
-    if not os.path.exists(changelog_path):
-        print_info("CHANGELOG.md não encontrado, iniciando versão 0.0.1")
-        return "0.0.1"
+    if not os.path.exists("CHANGELOG.md"):
+        return "0.1.0"
     
     try:
-        with open(changelog_path, 'r', encoding='utf-8') as f:
+        with open("CHANGELOG.md", 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Padrão para capturar versões no formato [0.0.1] - YYYY-MM-DD
-        version_pattern = r'## \[(\d+)\.(\d+)\.(\d+)\] - \d{4}-\d{2}-\d{2}'
-        versions = re.findall(version_pattern, content)
+        versions = re.findall(r'## \[(\d+)\.(\d+)\.(\d+)\]', content)
         
         if not versions:
-            print_info("Nenhuma versão encontrada no CHANGELOG, iniciando versão 0.0.1")
-            return "0.0.1"
+            return "0.1.0"
         
-        # Pega a versão mais alta encontrada
-        max_version = (0, 0, 0)
-        for version in versions:
-            major, minor, patch = map(int, version)
-            if (major, minor, patch) > max_version:
-                max_version = (major, minor, patch)
-        
-        major, minor, patch = max_version
-        
-        # Incrementa patch por padrão
-        new_version = f"{major}.{minor}.{patch + 1}"
-        print_info(f"Última versão: {major}.{minor}.{patch} → Nova: {new_version}")
-        
-        return new_version
-    
+        version_tuples = [tuple(map(int, v)) for v in versions]
+        latest_version = max(version_tuples)
+        major, minor, patch = latest_version
+        return f"{major}.{minor}.{patch + 1}"
     except Exception as e:
-        print_error(f"Erro ao ler CHANGELOG: {e}")
-        return "0.0.1"
+        print(f"Erro ao processar CHANGELOG.md: {e}")
+        return "0.1.0"
 
-def check_readme_sections():
-    """Verifica se README tem seções duplicadas e corrige automaticamente"""
-    readme_path = "README.md"
-    
-    if not os.path.exists(readme_path):
-        return False
-    
-    try:
-        # CORREÇÃO AUTOMÁTICA: Limpa duplicatas silenciosamente
-        ensure_clean_readme(readme_path)
-        fixed = fix_readme_duplicates(readme_path)
-        
-        with open(readme_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Verifica se ainda há duplicatas após a limpeza
-        lines = content.split('\n')
-        sections = []
-        duplicates_found = False
-        
-        for line in lines:
-            if line.startswith('## '):
-                section = line.strip()
-                if section in sections:
-                    print(f"⚠️  Seção duplicada encontrada: {section}")
-                    duplicates_found = True
-                sections.append(section)
-        
-        if fixed and not duplicates_found:
-            print("✅ Duplicatas removidas automaticamente")
-        
-        return duplicates_found
-    
-    except Exception as e:
-        print(f"⚠️  Erro ao verificar/corrigir README: {e}")
-        return False
-
-# Funções utilitárias que podem ser usadas como ferramentas
 def read_file(path: str) -> str:
-    """Lê o conteúdo de um arquivo"""
     if not os.path.exists(path):
-        return f"⚠️ Arquivo '{path}' não encontrado."
+        return f"Arquivo '{path}' não encontrado."
     try:
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
-    except UnicodeDecodeError:
-        with open(path, "r", encoding="latin-1", errors="replace") as f:
-            return f.read()
-    except Exception as e:
-        return f"Erro ao ler '{path}': {e}"
+    except:
+        return f"Erro ao ler '{path}'"
 
 def list_files(directory: str) -> str:
-    """Lista todos os arquivos em um diretório"""
     try:
-        items = os.listdir(directory)
-        return "\n".join(items)
-    except Exception as e:
-        return f"Erro ao listar arquivos: {e}"
+        files = []
+        for root, dirs, filelist in os.walk(directory):
+            for file in filelist:
+                if file.endswith(('.py', '.md', '.txt', '.yml', '.yaml', '.json')):
+                    rel_path = os.path.relpath(os.path.join(root, file), directory)
+                    files.append(rel_path)
+        return "\n".join(sorted(files))
+    except:
+        return "Erro ao listar arquivos"
 
 def main():
     print_header()
     
-    # Configura diretórios automaticamente
+    print_step(1, 5, "Configurando projeto...")
     project_path = setup_directories()
-    
-    print_step(3, 8, "Carregando configurações...")
     load_dotenv()
     
-    # Verifica API key
     if "ANTHROPIC_API_KEY" not in os.environ:
-        print_error("Variável ANTHROPIC_API_KEY não definida.")
-        print("💡 Defina sua chave API do Claude no arquivo .env")
-        print("   Exemplo: ANTHROPIC_API_KEY=sua_chave_aqui")
+        print("❌ ANTHROPIC_API_KEY não definida no .env")
         return
     
-    # Verifica seções duplicadas
-    print_step(4, 8, "Verificando documentação existente...")
-    has_duplicates = check_readme_sections()
-    
-    # Determina versão
+    print_step(2, 5, "Analisando versão...")
     next_version = get_next_version()
     current_date = datetime.now().strftime("%Y-%m-%d")
+    project_name = os.path.basename(project_path)  # Corrigido para usar o path real
     
-    print_step(5, 8, f"Preparando versão {next_version}...")
+    print_step(3, 5, "Limpando duplicatas...")
+    try:
+        if os.path.exists("README.md"):  # Evita erro se README não existe
+            ensure_clean_readme("README.md")
+            fix_readme_duplicates("README.md")
+    except:
+        pass
     
-    # Detecta o nome do projeto automaticamente
-    project_name = os.path.basename(os.getcwd())
-    
-    print_step(6, 8, "Iniciando análise com IA...")
-    print("🤖 Conectando com Anthropic Claude...")
+    print_step(4, 5, "Conectando com Claude...")
     
     team = Team(
         mode="coordinate",
@@ -229,82 +124,80 @@ def main():
             api_key=os.getenv("ANTHROPIC_API_KEY")
         ),
         tools=[read_file, list_files],
-        success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
+        success_criteria="Criar documentação específica baseada no código real do projeto.",
         instructions=[
-            "Documentação deve ser clara, concisa e em markdown",
-            "Instruções de instalação devem ser precisas e bem explicadas",
-            "NUNCA duplicar seções existentes - sempre verificar antes de adicionar",
-            "Se encontrar seções duplicadas, unificar em uma única seção",
-            "Evitar repetir informações já documentadas",
-            "Mantenha o README.md focado na visão geral e o CHANGELOG.md nas mudanças",
-            "Mantenha imagens se existirem",
-            "Use formatação consistente e profissional",
+            "Leia e analise o código ANTES de escrever documentação",
+            "Use informações REAIS do projeto, não templates genéricos",
+            "Documente o que o código realmente faz",
+            "Seja específico sobre funcionalidades encontradas",
+            "Use português brasileiro e formato markdown"
         ],
         markdown=True
     )
     
-    print_step(7, 8, "Executando análise inteligente...")
-    
     prompt = f"""
-    Você é um agente especialista que deve analisar este projeto e atualizar a documentação.
-    
-    INFORMAÇÕES DO PROJETO:
-    - Nome: {project_name}
-    - Versão: {next_version}
-    - Data: {current_date}
-    - Caminho: {project_path}
-    
-    VERIFICAÇÃO IMPORTANTE:
-    {"⚠️ ATENÇÃO: Seções duplicadas detectadas no README! Elas foram corrigidas automaticamente." if has_duplicates else "✅ README verificado e sem duplicações detectadas."}
-    
-    IMPORTANTE: O sistema possui correção automática de duplicatas. Sempre que você usar a função update_readme, 
-    ela automaticamente detectará e removerá seções duplicadas antes e depois da atualização.
-    
-    TAREFAS OBRIGATÓRIAS:
-    
-    1. ANÁLISE DO PROJETO:
-       - Use 'list_files' para mapear a estrutura em '{project_path}'
-       - Use 'read_file' para examinar arquivos importantes (main.py, requirements.txt, README.md)
-       
-    2. ATUALIZAÇÃO DO README.md:
-       - Verificar se já existe e ler o conteúdo atual
-       - NUNCA duplicar seções existentes - o sistema corrige automaticamente
-       - Se faltarem seções importantes, adicionar apenas o que falta
-       - Manter formatação consistente
-       - Focar em clareza e profissionalismo
-       
-    3. ATUALIZAÇÃO DO CHANGELOG.md:
-       - Verificar se já existe uma entrada para versão {next_version}
-       - Se não existir, adicionar nova entrada no formato: ## [{next_version}] - {current_date}
-       - Se já existir, NÃO duplicar - apenas verificar se está completa
-       - Descrever mudanças feitas na documentação
-       - Seguir formato Semantic Versioning (MAJOR.MINOR.PATCH)
-       - Usar categorias: Adicionado, Alterado, Removido, Corrigido
-    
-    DIRETRIZES DE QUALIDADE:
-    - Seja conciso mas informativo
-    - Use português brasileiro
-    - Mantenha tom profissional
-    - Evite redundâncias
-    - Teste mentalmente se faz sentido para um novo usuário
-    - Confie no sistema automático de correção de duplicatas
+    Você é um agente que deve analisar completamente o projeto para gerar a documentação personalizada.
+    A documentação deve ser toda em português e seguir as diretrizes do projeto.
+
+    PROJETO: {project_name}
+    VERSÃO: {next_version}
+    DATA: {current_date}
+    CÓDIGO EM: {project_path}
+
+    Para o README.md, você deve:
+        1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
+        2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
+        3. Atualize o README.md com uma seção de 'Introdução' (baseada na sua análise) e uma seção de 'Instalação' (com as dependências e instruções para instalar o projeto que você encontrou).
+        4. Não é para citar a complexidade do projeto (Não é para citar se é simples ou complexo,etc), mas pode fazer um pequeno pitch sobre o que ele faz na Introdução.
+        5. Se identificar uma VENV ou ambiente virtual, adicione instruções para ativá-lo em sistemas operacionais Windows e Linux.
+
+        Diretrizes para o CHANGELOG.md:
+            1. Adicione uma nova entrada para a versão {next_version}.
+            2. O novo registro deve incluir a data de hoje ({current_date}).
+            3. Descreva as mudanças de forma clara e concisa, seguindo o padrão de formatação do CHANGELOG.md existente.
+            4. Relate aqui as mudanças que você fez no README.md, como a adição de seções ou melhorias na clareza.
+            5. Se não houver mudanças significativas, adicione uma entrada genérica como "Nenhuma mudança significativa".
+
+    IMPORTANTE:
+    - ZERO conteúdo genérico ou template
+    - Documente apenas o que você encontrar no código
+    - Se encontrar agentes, explique o que cada um faz
+    - Se encontrar APIs, liste os endpoints reais  
+    - Se encontrar funções, documente as principais
+    - Baseie tudo na análise real dos arquivos
+
+    Comece analisando os arquivos agora.
     """
+    
+    print_step(5, 5, "Gerando documentação...")
     
     try:
         team.print_response(prompt)
-        print_step(8, 8, "Finalizando documentação...", "✅")
+
+        # Garante que o CHANGELOG seja incrementado
+        changelog_path = "CHANGELOG.md"
+        new_entry = f"## [{next_version}] - {current_date}\n- Documentação atualizada automaticamente.\n\n"
+
+        try:
+            if not os.path.exists(changelog_path):
+                with open(changelog_path, "w", encoding="utf-8") as f:
+                    f.write("# Changelog\n\n")
+                    f.write(new_entry)
+            else:
+                with open(changelog_path, "r+", encoding="utf-8") as f:
+                    content = f.read()
+                    if f"## [{next_version}]" not in content:
+                        f.seek(0, 0)
+                        f.write(new_entry + content)
+        except Exception as e:
+            print(f"⚠️ Erro ao atualizar o CHANGELOG.md: {e}")
         
-        print("\n" + "=" * 60)
-        print_success("DOCUMENTAÇÃO GERADA COM SUCESSO!")
-        print("=" * 60)
-        print(f"📄 README.md atualizado")
-        print(f"📋 CHANGELOG.md versão {next_version}")
-        print(f"📅 Data: {current_date}")
-        print("=" * 60)
-        
+        print(f"\n✅ Documentação gerada!")
+        print(f"📄 README.md personalizado")
+        print(f"📋 CHANGELOG.md v{next_version}")
+    
     except Exception as e:
-        print_error(f"Erro durante a geração: {e}")
-        sys.exit(1)
+        print(f"❌ Erro: {e}")
 
 if __name__ == "__main__":
     main()
