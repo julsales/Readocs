@@ -13,38 +13,43 @@ jobs:
     steps:
       - name: 🔄 Checkout do repositório
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Busca todo o histórico para comparações
 
       - name: 🛠️ Instalar dependências necessárias
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r readocs/requirements.txt  # Caminho correto
           
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
         run: |
-          prs=$(gh pr list --state open --search "Atualização automática da documentação in:title" --json number -q '.[].number')
-          if [ -n "$prs" ]; then
+          prs=$(gh pr list --state open --search "Atualização automática da documentação in:title" --json number -q '.[].number' | head -n 1)
+          if [ -n "$prs" ] && [ "$prs" != "null" ]; then
             echo "PR já existe: $prs"
             echo "existing_pr=$prs" >> $GITHUB_OUTPUT
+            echo "should_skip=true" >> $GITHUB_OUTPUT
           else
             echo "Nenhum PR existente"
             echo "existing_pr=" >> $GITHUB_OUTPUT
+            echo "should_skip=false" >> $GITHUB_OUTPUT
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🪄 Criar branch para documentação
-        if: steps.check_pr.outputs.existing_pr == ''
+        if: steps.check_pr.outputs.should_skip == 'false'
         run: |
           timestamp=$(date +%Y%m%d_%H%M%S)
           branch_name="docs/auto-update-$timestamp"
           git checkout -b $branch_name
           echo "branch_name=$branch_name" >> $GITHUB_ENV
+          echo "✅ Branch criada: $branch_name"
 
       - name: 📦 Executar Agentes de Documentação
-        if: steps.check_pr.outputs.existing_pr == ''
+        if: steps.check_pr.outputs.should_skip == 'false'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
@@ -52,32 +57,69 @@ jobs:
           cd readocs
           python main.py
 
+      - name: 🔍 Verificar mudanças
+        if: steps.check_pr.outputs.should_skip == 'false'
+        id: check_changes
+        run: |
+          git add README.md CHANGELOG.md || true
+          if git diff --cached --quiet; then
+            echo "📝 Nenhuma mudança detectada na documentação"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Mudanças detectadas na documentação"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            git status
+          fi
+
       - name: ✅ Commit e push se houver mudanças
-        if: steps.check_pr.outputs.existing_pr == ''
+        if: steps.check_pr.outputs.should_skip == 'false' && steps.check_changes.outputs.has_changes == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git diff --quiet main -- README.md CHANGELOG.md; then
-            echo "📝 Nenhuma mudança detectada na documentação"
-            echo "changes=false" >> $GITHUB_OUTPUT
-          else
-            echo "📝 Mudanças detectadas, criando PR..."
-            
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git config --global user.name "github-actions[bot]"
-            
-            git add README.md CHANGELOG.md
-            git commit -m "docs: atualização automática da documentação [skip ci]"
-            git push origin HEAD
+          echo "🚀 Criando commit e PR..."
+          
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          git commit -m "docs: atualização automática da documentação [skip ci]"
+          git push origin HEAD
+          
+          echo "✅ Push realizado para branch: ${{ env.branch_name }}"
 
-            pr_number=$(gh pr create \
-              --title "📚 Atualização automática da documentação" \
-              --body "## 📚 Atualização Automática da Documentação..." \
-              --label "documentation,automated" \
-              --assignee julsales \
-              --json number --jq .number)
+      - name: 📤 Criar Pull Request
+        if: steps.check_pr.outputs.should_skip == 'false' && steps.check_changes.outputs.has_changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_body="## 📚 Atualização Automática da Documentação
 
-            echo "changes=true" >> $GITHUB_OUTPUT
-            echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
-            echo "✅ PR #$pr_number criado com sucesso!"
-          fi
+          Esta é uma atualização automática da documentação gerada pelos agentes IA.
+
+          ### 🤖 Mudanças Realizadas:
+          - ✅ README.md atualizado com análise do projeto
+          - ✅ CHANGELOG.md atualizado com nova versão
+          
+          ### 📋 Detalhes:
+          - **Trigger**: ${{ github.event_name }}
+          - **Branch**: ${{ github.ref_name }}
+          - **Commit**: ${{ github.sha }}
+          - **Autor**: ${{ github.actor }}
+          
+          ---
+          🤖 *Gerado automaticamente pelo GitHub Actions*"
+
+          pr_number=$(gh pr create \
+            --title "📚 Atualização automática da documentação" \
+            --body "$pr_body" \
+            --label "documentation,automated" \
+            # --assignee julsales \  # Descomente para assignee fixo
+            --json number --jq .number)
+
+          echo "✅ PR #$pr_number criado com sucesso!"
+          echo "🔗 Verifique em: https://github.com/${{ github.repository }}/pull/$pr_number"
+
+      - name: ⏭️ Skip - PR já existe
+        if: steps.check_pr.outputs.should_skip == 'true'
+        run: |
+          echo "⏭️ Pulando execução - PR #${{ steps.check_pr.outputs.existing_pr }} já existe"
+          echo "🔗 Verifique em: https://github.com/${{ github.repository }}/pull/${{ steps.check_pr.outputs.existing_pr }}"
