@@ -190,24 +190,4 @@ Este projeto está licenciado sob a **MIT License** - veja o arquivo [LICENSE](L
 
 ---
 
-## 👨‍💻 Autor
-
-**Juliano Sales** - [@julsales](https://github.com/julsales)
-
----
-
-## 🙏 Agradecimentos
-
-- [Anthropic](https://anthropic.com) pela API Claude
-- [Agno Framework](https://github.com/agno-team/agno) pela estrutura de agentes
-- Comunidade Python pelo ecossistema incrível
-
----
-
-<div align="center">
-
-**Feito com ❤️ e ☕ por [Juliano Sales](https://github.com/julsales)**
-
-[⭐ Star](https://github.com/julsales/Readocs) • [🐛 Issues](https://github.com/julsales/Readocs/issues) • [🤝 Contribute](https://github.com/julsales/Readocs/pulls)
-
 </div>
