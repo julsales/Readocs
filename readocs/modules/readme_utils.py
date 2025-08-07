@@ -39,11 +39,11 @@ def update_readme(section_title: str, section_content: str, project_title: str =
 
     # 3. Tenta encontrar e substituir a seção.
     if re.search(pattern, content, re.DOTALL | re.MULTILINE):
-        # O re.sub pode falhar se new_section_content_with_title tiver escapes inválidos.
+        # O re.sub pode falhar se `new_section_content_with_title` tiver escapes inválidos.
         # A solução mais segura é usar uma função de callback ou escapar os caracteres.
         
         # Correção: use uma função de callback (lambda) que retorna a string de substituição.
-        # O argumento 'm' é o match object. Usar um callback impede o re.sub de interpretar
+        # O argumento 'm' é o match object. Usar um callback impede o `re.sub` de interpretar
         # a string de substituição como uma regex.
         updated_content = re.sub(
             pattern,
