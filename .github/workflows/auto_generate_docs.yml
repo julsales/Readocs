@@ -28,8 +28,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
-          pip install -r readocs/requirements.txt  # Caminho correto
-          
+          pip install -r requirements.txt  # Caminho correto
+
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
         run: |
