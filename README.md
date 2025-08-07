@@ -1,3 +1,6 @@
+{{BADGE_SECTION}}
+# readocs
+
 <div align="center">
 
 <img src="https://img.shields.io/github/repo-size/julsales/Readocs?style=for-the-badge">
@@ -10,29 +13,12 @@
 # readocs
 
 ## Introdução
-O projeto 'readocs' é uma solução automatizada para atualizar a documentação técnica de um projeto, incluindo o README.md e o CHANGELOG.md. Ele utiliza uma equipe de agentes (curation_agent e doc_agent) da biblioteca Agno, que são responsáveis por analisar o código-fonte e as dependências do projeto, e gerar a documentação de forma clara e concisa.
-
-O objetivo é manter a documentação sempre atualizada e alinhada com as melhores práticas, evitando a sobrescrita de conteúdo útil e repetição de informações.
+Este é um projeto de exemplo que demonstra a utilização de uma ferramenta de inteligência artificial para auxiliar em tarefas de atualização de documentação.
 
 ## Instalação
-Antes de instalar o projeto, certifique-se de ter as seguintes dependências instaladas:
+Para instalar e executar este projeto, siga as instruções abaixo:
 
-- Python 3.7 ou superior
-- pip (gerenciador de pacotes do Python)
-
-Para instalar o projeto, siga os seguintes passos:
-
-1. Clone o repositório do projeto:
-```
-git clone https://github.com/seu-usuario/readocs.git
-```
-
-2. Navegue até o diretório do projeto:
-```
-cd readocs
-```
-
-3. Crie e ative um ambiente virtual (VENV) usando o Python:
+1. Crie e ative um ambiente virtual (VENV) em seu sistema operacional:
 
 **Windows**:
 ```
@@ -46,14 +32,12 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-4. Instale as dependências do projeto:
+2. Instale as dependências necessárias:
 ```
 pip install -r requirements.txt
 ```
 
-5. Execute o script principal:
+3. Execute o projeto:
 ```
 python main.py
 ```
-
-Pronto! Agora você pode utilizar o projeto 'readocs' em seu ambiente de desenvolvimento.
