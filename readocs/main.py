@@ -20,12 +20,13 @@ team = Team(
     members=[curation_agent, doc_agent],
     model=Gemini(id="gemini-2.5-flash-lite"),  # Usando o modelo Gemini.
     success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
-    instructions=["Documentação deve ser clara, concisa e em markdown", "Evitar sobrescrever conteúdo útil"],
+    instructions=["Documentação deve ser clara, concisa e em markdown", "Evitar sobrescrever conteúdo útil", "Evitar repetir informações já documentadas"],
     markdown=True
 )
 
 team.print_response("""
     Você é um agente que deve analisar completamente o projeto para gerar a documentação.
+    A documentação deve ser toda em português e seguir as diretrizes do projeto.
     Para o README.md, você deve:
     1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto.
     2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
