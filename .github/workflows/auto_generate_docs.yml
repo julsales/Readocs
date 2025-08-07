@@ -83,13 +83,18 @@ jobs:
 
       - name: 🔧 Substituir {{BADGE_SECTION}} pelo HTML de badges
         run: |
+          # Pega automaticamente as informações do repositório
+          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          REPO_FULL="${{ github.repository }}"
+          
           BADGE_HTML='<div align="center">
 
-          <img src="https://img.shields.io/github/repo-size/usuario/repositorio?style=for-the-badge">
-          <img src="https://img.shields.io/github/languages/count/usuario/repositorio?style=for-the-badge">
-          <img src="https://img.shields.io/github/forks/usuario/repositorio?style=for-the-badge">
-          <img src="https://img.shields.io/bitbucket/issues/usuario/repositorio?style=for-the-badge">
-          <img src="https://img.shields.io/bitbucket/pr-raw/usuario/repositorio?style=for-the-badge">
+          <img src="https://img.shields.io/github/repo-size/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/languages/count/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/forks/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/issues/'$REPO_FULL'?style=for-the-badge">
+          <img src="https://img.shields.io/github/issues-pr/'$REPO_FULL'?style=for-the-badge">
           <br><br>
           <img src="https://via.placeholder.com/480x320.png?text=Imagem+do+Projeto" height="320">
           </div>'
@@ -100,7 +105,7 @@ jobs:
               print
             }
           ' README.md > README.tmp && mv README.tmp README.md
-
+          
       - name: 🔍 Verificar mudanças
         id: check_changes
         run: |
