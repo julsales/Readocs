@@ -3,8 +3,6 @@
 ## Introdução
 Este projeto tem como objetivo gerar automaticamente a documentação técnica de um sistema, usando uma abordagem baseada em agentes. Ele utiliza a API do modelo de linguagem Claude, da Anthropic, para processar instruções e gerar o conteúdo do README e CHANGELOG.
 
-O projeto possui uma estrutura simples, com apenas alguns arquivos e diretórios:
-
 - `modules`: provavelmente contém módulos/pacotes usados pelo projeto
 - `agents`: provavelmente contém os agentes usados para gerar a documentação
 - `main.py`: script principal que configura o ambiente e executa os agentes
