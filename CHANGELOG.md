@@ -14,3 +14,11 @@
 - Melhorada a seção de "Instalação" no README.md para tornar os passos mais claros.
 - Nenhuma outra mudança significativa.
 
+## [2025-08-07 14:00] - 0.1.0
+Criação do README.md com as seguintes seções:
+- Introdução: Breve descrição do projeto Readocs e suas principais funcionalidades.
+- Instalação:
+  - Lista de dependências do projeto
+  - Instruções de instalação
+  - Instruções para ativação do ambiente virtual (se aplicável)
+
