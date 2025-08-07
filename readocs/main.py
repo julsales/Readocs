@@ -70,31 +70,7 @@ def get_next_version():
     except Exception as e:
         print(f"Erro ao ler CHANGELOG: {e}")
         return "0.1.0"
-    
-def forcar_badge_section_no_readme():
-    path = "README.md"
-    if not os.path.exists(path):
-        print("README.md não encontrado para aplicar hardcode.")
-        return
 
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    if content.startswith("{{BADGE_SECTION}}"):
-        print("✅ BADGE_SECTION já está presente corretamente.")
-        return
-
-    # Remove qualquer BADGE_SECTION perdido no meio do texto
-    content = content.replace("{{BADGE_SECTION}}", "")
-
-    # Garante o marcador no topo
-    content = "{{BADGE_SECTION}}\n" + content.lstrip()
-
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(content)
-
-    print("✅ BADGE_SECTION foi forçado no topo do README.md (hardcode aplicado).")
-    
 def main():
     # Configura diretórios automaticamente
     project_path = setup_directories()
@@ -163,5 +139,5 @@ def main():
     
     print(f"\n✅ Documentação gerada!")
     print(f"📄 README.md e CHANGELOG.md criados no diretório atual")
-    forcar_badge_section_no_readme()
+
 main()
