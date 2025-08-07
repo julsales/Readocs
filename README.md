@@ -1,4 +1,3 @@
-# Projeto de Exemplo
 
 ## Introdução
 O Readocs é um projeto que utiliza agentes da plataforma Anthropic para automatizar a geração e curadoria de documentação técnica de projetos. Ele analisa a estrutura e o propósito do projeto, e atualiza automaticamente o conteúdo dos arquivos de documentação.
