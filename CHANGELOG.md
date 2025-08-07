@@ -8,3 +8,8 @@
 ## [2025-08-07 17:23] - 0.1.0
 - Documentação atualizada automaticamente.
 
+## [2025-08-07 18:25] - v0.1.0
+- Documentação inicial do projeto READOCS
+- Adicionada seção de Introdução e Instalação no README.md
+- Configuração do ambiente virtual descrita
+
