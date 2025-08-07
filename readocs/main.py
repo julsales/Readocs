@@ -1,7 +1,7 @@
 from agents.doc_agent import doc_agent
 from agents.curation_agent import curation_agent
 from agno.team import Team
-from agno.models.google import Gemini
+from agno.models.anthropic import Claude  
 from dotenv import load_dotenv
 import os
 
@@ -9,18 +9,26 @@ print(f"O diretório de trabalho atual é: {os.getcwd()}")
 
 load_dotenv()
 
-# Certifique-se de que a variável de ambiente GOOGLE_API_KEY está definida.
-# Se você estiver usando o modelo Gemini, o AGNO buscará a chave aqui.
-if "GOOGLE_API_KEY" not in os.environ:
-    print("Atenção: A variável de ambiente 'GOOGLE_API_KEY' não está definida.")
-    print("Por favor, defina-a com sua chave de API do Gemini para que o código funcione.")
+# Certifique-se de que a variável de ambiente ANTHROPIC_API_KEY está definida.
+# Se você estiver usando o modelo Claude, o AGNO buscará a chave aqui.
+if "ANTHROPIC_API_KEY" not in os.environ:
+    print("Atenção: A variável de ambiente 'ANTHROPIC_API_KEY' não está definida.")
+    print("Por favor, defina-a com sua chave de API do Claude para que o código funcione.")
+    print("Você pode obter uma chave em: https://console.anthropic.com/")
 
 team = Team(
     mode="coordinate",
     members=[curation_agent, doc_agent],
-    model=Gemini(id="gemini-2.5-flash-lite"),  # Usando o modelo Gemini.
+    model=Claude(
+        id="claude-3-haiku-20240307",  # Modelo mais barato da Anthropic
+        api_key=os.getenv("ANTHROPIC_API_KEY")
+    ),
     success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
-    instructions=["Documentação deve ser clara, concisa e em markdown", "Evitar sobrescrever conteúdo útil", "Evitar repetir informações já documentadas"],
+    instructions=[
+        "Documentação deve ser clara, concisa e em markdown", 
+        "Evitar sobrescrever conteúdo útil", 
+        "Evitar repetir informações já documentadas"
+    ],
     markdown=True
 )
 

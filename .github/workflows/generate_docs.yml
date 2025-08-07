@@ -27,36 +27,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Executar Agentes de Documentação com Retry
+      - name: Executar Agentes de Documentação
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # Nova variável!
           COMMIT_MESSAGE: ${{ github.event.inputs.mensagem_commit }}
         run: |
           cd readocs
-          max_attempts=3
-          attempt=1
-          
-          while [ $attempt -le $max_attempts ]; do
-            echo "🔄 Tentativa $attempt de $max_attempts..."
-            
-            if python main.py; then
-              echo "✅ Sucesso na tentativa $attempt"
-              break
-            else
-              echo "❌ Falha na tentativa $attempt"
-              
-              if [ $attempt -eq $max_attempts ]; then
-                echo "🚫 Todas as tentativas falharam"
-                exit 1
-              fi
-              
-              sleep_time=$((5 * attempt))
-              echo "⏳ Aguardando ${sleep_time}s..."
-              sleep $sleep_time
-            fi
-            
-            attempt=$((attempt + 1))
-          done
+          python main.py
 
       - name: Revisar e Fazer o Commit das Mudanças
         run: |
