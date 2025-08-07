@@ -42,3 +42,8 @@ Criação do README.md com as seguintes seções:
 - Adicionadas instruções para ativação de ambiente virtual
 - Nenhuma outra mudança significativa
 
+## [2025-08-07 15:35] - 0.1.0
+- Criação da documentação inicial do projeto Readocs
+- Adicionada seção de Introdução no README.md
+- Adicionada seção de Instalação no README.md, com instruções para ativar o ambiente virtual
+

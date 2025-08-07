@@ -1,28 +1,40 @@
 # Readocs
 
 ## Introdução
-O Readocs é um projeto destinado a facilitar a criação e manutenção de documentação de projetos. Ele fornece recursos para:
-
-- Criação de documentação em formato Markdown
-- Atualização automática de arquivos-chave como README.md e CHANGELOG.md
-- Integração com ferramentas de CI/CD para publicação da documentação
+O Readocs é um projeto que utiliza agentes da plataforma Anthropic para automatizar a geração e curadoria de documentação técnica de projetos. Ele analisa a estrutura e o propósito do projeto, e atualiza automaticamente o README.md e CHANGELOG.md com as informações relevantes.
 
 ## Introdução
-O Readocs é um projeto destinado a facilitar a criação e manutenção de documentação de projetos. Ele fornece recursos para:
-
-- Criação de documentação em formato Markdown
-- Atualização automática de arquivos-chave como README.md e CHANGELOG.md
-- Integração com ferramentas de CI/CD para publicação da documentação
+O Readocs é um projeto que utiliza agentes da plataforma Anthropic para automatizar a geração e curadoria de documentação técnica de projetos. Ele analisa a estrutura e o propósito do projeto, e atualiza automaticamente o README.md e CHANGELOG.md com as informações relevantes.
 
 ## Instalação
-Para instalar e configurar o Readocs, siga os seguintes passos:
+## Instalação
 
-1. Crie e ative um ambiente virtual Python (recomendado):
-   - `python -m venv venv`
-   - `source venv/bin/activate` (Linux/Mac) ou `venv\Scripts\activate` (Windows)
-2. Instale as dependências do projeto:
-   - `pip install -r requirements.txt`
-3. Você está pronto para começar a usar o Readocs!
+Antes de executar o projeto, certifique-se de ter as seguintes dependências instaladas:
+
+- Python 3.x
+- Pacotes listados no arquivo `requirements.txt`
+
+Para instalar as dependências, execute o seguinte comando no terminal:
+
+```
+pip install -r requirements.txt
+```
+
+Se o projeto utilizar um ambiente virtual, siga as instruções abaixo para ativá-lo:
+
+**Windows**:
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+**Linux/macOS**:
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Após ativar o ambiente virtual, você já pode executar o projeto.
 
 ## Recursos
 - Geração automatizada de documentação a partir de comentários no código
