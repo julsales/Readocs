@@ -1,30 +1,42 @@
 # Readocs
 
 ## Introdução
-O Readocs é um projeto que facilita a geração e a manutenção da documentação técnica de projetos de software. Ele utiliza uma equipe de agentes de inteligência artificial, como o agente de curadoria e o agente de documentação, para automatizar a atualização da documentação de forma inteligente e aderente às melhores práticas.
+O Readocs é um projeto que utiliza agentes de IA para automatizar a geração e atualização da documentação de projetos. Ele é composto por módulos reutilizáveis e agentes especializados em diferentes tarefas, como curadoria e geração de documentação.
 
-A principal funcionalidade do Readocs é:
-- Analisar o código-fonte e outros arquivos relevantes para entender o propósito e as dependências do projeto
-- Gerar e atualizar automaticamente a documentação técnica, como o README.md e o CHANGELOG.md
-- Seguir diretrizes de documentação para manter a clareza, concisão e qualidade da documentação
+O objetivo do Readocs é facilitar o processo de manutenção da documentação técnica, tornando-o mais eficiente e preciso. Ele analisa a estrutura do projeto, suas dependências e características, e então atualiza automaticamente o README.md e o CHANGELOG.md com as informações relevantes.
 
 ## Instalação
 ## Instalação
 
-Para instalar e executar o Readocs, siga as instruções abaixo:
+O Readocs requer as seguintes dependências:
 
-1. Certifique-se de ter o Python 3.7 ou superior instalado em seu sistema.
-2. Crie um ambiente virtual Python usando seu método preferido, como `venv` ou `conda`.
-3. Ative o ambiente virtual:
-   - **Windows**: `venv\Scripts\activate` ou `conda activate <nome_do_ambiente>`
-   - **Linux/macOS**: `source venv/bin/activate` ou `conda activate <nome_do_ambiente>`
-4. Instale as dependências do projeto:
+- Python 3.7 ou superior
+- Bibliotecas especificadas no arquivo `requirements.txt`
+
+Para instalar as dependências, siga as instruções abaixo:
+
+1. Crie um ambiente virtual (recomendado):
+
+   - **Windows**:
+     ```
+     python -m venv venv
+     venv\Scripts\activate
+     ```
+   - **Linux/Mac**:
+     ```
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+
+2. Instale as dependências:
    ```
    pip install -r requirements.txt
    ```
-5. Execute o script principal:
+
+3. Configure a chave da API do Anthropic:
+   - Defina a variável de ambiente `ANTHROPIC_API_KEY` com a sua chave de API.
+
+4. Execute o projeto:
    ```
    python main.py
    ```
-
-Pronto! O Readocs agora está instalado e pronto para uso.
