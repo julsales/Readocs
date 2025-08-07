@@ -72,6 +72,9 @@ def get_next_version():
         return "0.1.0"
 
 # Funções utilitárias que podem ser usadas como ferramentas
+# Certifique-se de que essas funções estão definidas ou importadas no seu arquivo principal
+# Se você está importando de 'modules.file_utils', certifique-se de que esse módulo
+# existe e contém as funções.
 def read_file(path: str) -> str:
     """Lê o conteúdo de um arquivo"""
     if not os.path.exists(path):
@@ -121,9 +124,8 @@ def main():
             id="claude-3-haiku-20240307",
             api_key=os.getenv("ANTHROPIC_API_KEY")
         ),
-        # A nova versão do Agno já registra as ferramentas automaticamente,
-        # mas adicioná-las explicitamente não causa problema.
-        tools=[read_file, list_files], 
+        # ✅ AQUI ESTÁ A CORREÇÃO: REGISTRE AS FERRAMENTAS
+        tools=[read_file, list_files],
         success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
         instructions=[
             "Documentação deve ser clara, concisa e em markdown",
@@ -158,3 +160,6 @@ def main():
     
     print(f"\n✅ Documentação gerada!")
     print(f"📄 README.md e CHANGELOG.md criados no diretório atual")
+
+if __name__ == "__main__":
+    main()
