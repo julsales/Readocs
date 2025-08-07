@@ -123,7 +123,9 @@ def main():
     Diretrizes para o CHANGELOG.md:
     1. Adicione uma nova entrada para a versão {next_version}.
     2. O novo registro deve incluir a data de hoje ({current_date}).
-    3. A entrada deve ser: "- (Adicionado) Inicialização do sistema de documentação com agentes."
+    3. Descreva as mudanças de forma clara e concisa, seguindo o padrão de formatação do CHANGELOG.md existente.
+    4. Relate aqui as mudanças que você fez no README.md, como a adição de seções ou melhorias na clareza.
+    5. Se não houver mudanças significativas, adicione uma entrada genérica como "Nenhuma mudança significativa".
     """)
     
     print(f"\n✅ Documentação gerada!")
