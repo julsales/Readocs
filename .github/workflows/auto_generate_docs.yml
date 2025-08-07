@@ -20,43 +20,55 @@ jobs:
       - name: 🔄 Checkout do repositório
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Busca todo o histórico para comparações
-          token: ${{ secrets.GITHUB_TOKEN }}  # Token explícito
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🛠️ Instalar dependências necessárias
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
-          pip install -r requirements.txt 
+          pip install -r requirements.txt
           
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
         run: |
-          prs=$(gh pr list --state open --search "Atualização automática da documentação in:title" --json number -q '.[].number' | head -n 1)
-          if [ -n "$prs" ] && [ "$prs" != "null" ]; then
-            echo "PR já existe: $prs"
-            echo "existing_pr=$prs" >> $GITHUB_OUTPUT
-            echo "should_skip=true" >> $GITHUB_OUTPUT
+          pr_info=$(gh pr list --state open --search "Atualização automática da documentação in:title" --json number,headRefName --jq '.[0]')
+          
+          if [ "$pr_info" != "null" ] && [ -n "$pr_info" ]; then
+            pr_number=$(echo "$pr_info" | jq -r '.number')
+            branch_name=$(echo "$pr_info" | jq -r '.headRefName')
+            echo "PR existente encontrado: #$pr_number na branch: $branch_name"
+            echo "existing_pr=$pr_number" >> $GITHUB_OUTPUT
+            echo "existing_branch=$branch_name" >> $GITHUB_OUTPUT
+            echo "has_existing_pr=true" >> $GITHUB_OUTPUT
           else
-            echo "Nenhum PR existente"
+            echo "Nenhum PR existente encontrado"
             echo "existing_pr=" >> $GITHUB_OUTPUT
-            echo "should_skip=false" >> $GITHUB_OUTPUT
+            echo "existing_branch=" >> $GITHUB_OUTPUT
+            echo "has_existing_pr=false" >> $GITHUB_OUTPUT
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🪄 Criar branch para documentação
-        if: steps.check_pr.outputs.should_skip == 'false'
+      - name: 🪄 Usar branch existente ou criar nova
         run: |
-          timestamp=$(date +%Y%m%d_%H%M%S)
-          branch_name="docs/auto-update-$timestamp"
-          git checkout -b $branch_name
+          if [ "${{ steps.check_pr.outputs.has_existing_pr }}" == "true" ]; then
+            # Usar branch existente
+            branch_name="${{ steps.check_pr.outputs.existing_branch }}"
+            echo "🔄 Usando branch existente: $branch_name"
+            git fetch origin $branch_name
+            git checkout $branch_name
+          else
+            # Criar nova branch
+            timestamp=$(date +%Y%m%d_%H%M%S)
+            branch_name="docs/auto-update-$timestamp"
+            echo "🪄 Criando nova branch: $branch_name"
+            git checkout -b $branch_name
+          fi
           echo "branch_name=$branch_name" >> $GITHUB_ENV
-          echo "✅ Branch criada: $branch_name"
 
       - name: 📦 Executar Agentes de Documentação
-        if: steps.check_pr.outputs.should_skip == 'false'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
@@ -65,7 +77,6 @@ jobs:
           python main.py
 
       - name: 🔍 Verificar mudanças
-        if: steps.check_pr.outputs.should_skip == 'false'
         id: check_changes
         run: |
           git add README.md CHANGELOG.md || true
@@ -78,23 +89,26 @@ jobs:
             git status
           fi
 
-      - name: ✅ Commit e push se houver mudanças
-        if: steps.check_pr.outputs.should_skip == 'false' && steps.check_changes.outputs.has_changes == 'true'
+      - name: ✅ Commit e push mudanças
+        if: steps.check_changes.outputs.has_changes == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🚀 Criando commit e PR..."
-          
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           
-          git commit -m "docs: atualização automática da documentação [skip ci]"
+          commit_msg="docs: atualização automática da documentação [skip ci]"
+          if [ "${{ steps.check_pr.outputs.has_existing_pr }}" == "true" ]; then
+            commit_msg="docs: atualização da documentação (PR #${{ steps.check_pr.outputs.existing_pr }}) [skip ci]"
+          fi
+          
+          git commit -m "$commit_msg"
           git push origin HEAD
           
           echo "✅ Push realizado para branch: ${{ env.branch_name }}"
 
-      - name: 📤 Criar Pull Request
-        if: steps.check_pr.outputs.should_skip == 'false' && steps.check_changes.outputs.has_changes == 'true'
+      - name: 📤 Criar Pull Request (se novo)
+        if: steps.check_changes.outputs.has_changes == 'true' && steps.check_pr.outputs.has_existing_pr == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -120,11 +134,38 @@ jobs:
             --body "$pr_body" \
             --label "documentation")
 
-          echo "✅ PR criado com sucesso!"
+          echo "✅ Novo PR criado!"
           echo "🔗 Verifique em: $pr_url"
 
-      - name: ⏭️ Skip - PR já existe
-        if: steps.check_pr.outputs.should_skip == 'true'
+      - name: 🔄 Atualizar PR existente
+        if: steps.check_changes.outputs.has_changes == 'true' && steps.check_pr.outputs.has_existing_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "⏭️ Pulando execução - PR #${{ steps.check_pr.outputs.existing_pr }} já existe"
+          echo "🔄 PR #${{ steps.check_pr.outputs.existing_pr }} foi atualizado com novas mudanças"
+          
+          # Adiciona comentário no PR sobre a atualização
+          gh pr comment ${{ steps.check_pr.outputs.existing_pr }} --body "🤖 **Documentação atualizada automaticamente**
+
+          Nova atualização baseada no commit: \`${{ github.sha }}\`
+          
+          📅 Atualizado em: $(date)
+          👤 Autor do commit: ${{ github.actor }}"
+          
+          echo "✅ PR atualizado com sucesso!"
           echo "🔗 Verifique em: https://github.com/${{ github.repository }}/pull/${{ steps.check_pr.outputs.existing_pr }}"
+
+      - name: 📊 Resumo da execução
+        run: |
+          echo "## 📊 Resumo da Execução"
+          echo "- Branch utilizada: ${{ env.branch_name }}"
+          if [ "${{ steps.check_pr.outputs.has_existing_pr }}" == "true" ]; then
+            echo "- Ação: Atualização do PR #${{ steps.check_pr.outputs.existing_pr }}"
+          else
+            echo "- Ação: Criação de novo PR"
+          fi
+          if [ "${{ steps.check_changes.outputs.has_changes }}" == "true" ]; then
+            echo "- Mudanças: ✅ Documentação atualizada"
+          else
+            echo "- Mudanças: 📝 Nenhuma mudança detectada"
+          fi
