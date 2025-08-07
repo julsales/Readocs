@@ -1,3 +1,6 @@
+## [0.1.0] - 2025-08-07
+- Documentação atualizada automaticamente.
+
 # Changelog
 
 ## [2025-08-07 17:22] - 0.1.0
