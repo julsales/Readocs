@@ -46,7 +46,7 @@ jobs:
       - name: 📦 Executar Agentes de Documentação
         if: steps.check_pr.outputs.existing_pr == ''
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           cd readocs
