@@ -1,4 +1,12 @@
-{{BADGE_SECTION}}
+<div align="center">
+
+<img src="https://img.shields.io/github/repo-size/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/languages/count/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/forks/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/issues/julsales/Readocs?style=for-the-badge">
+<img src="https://img.shields.io/github/issues-pr/julsales/Readocs?style=for-the-badge">
+</div>
+
 # readocs
 
 ## Introdução
