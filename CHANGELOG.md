@@ -18,3 +18,13 @@ Nenhuma mudança significativa.
 - Adicionada seção de Instalação no README.md com instruções para criação e ativação de ambiente virtual (VENV) em Windows e Linux/macOS
 - Mantidas imagens existentes no README.md
 
+## [2025-08-07 13:22] - 0.1.0
+- Adicionada seção de Introdução no README.md, descrevendo o propósito do projeto.
+- Adicionada seção de Instalação no README.md, com instruções detalhadas para configurar o ambiente e executar o projeto.
+- Nenhuma outra mudança significativa.
+
+## [2025-08-07 13:22] - 0.1.0 - 2025-08-07
+- Adição de nova funcionalidade X
+- Correção de bug Y
+- Melhorias na documentação
+
