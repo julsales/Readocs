@@ -13,7 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configurar Ambiente Python
         uses: actions/setup-python@v4
@@ -25,18 +27,48 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Executar Agentes de Documentação
+      - name: Executar Agentes de Documentação com Retry
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           COMMIT_MESSAGE: ${{ github.event.inputs.mensagem_commit }}
         run: |
           cd readocs
-          python main.py
+          max_attempts=3
+          attempt=1
+          
+          while [ $attempt -le $max_attempts ]; do
+            echo "🔄 Tentativa $attempt de $max_attempts..."
+            
+            if python main.py; then
+              echo "✅ Sucesso na tentativa $attempt"
+              break
+            else
+              echo "❌ Falha na tentativa $attempt"
+              
+              if [ $attempt -eq $max_attempts ]; then
+                echo "🚫 Todas as tentativas falharam"
+                exit 1
+              fi
+              
+              sleep_time=$((5 * attempt))
+              echo "⏳ Aguardando ${sleep_time}s..."
+              sleep $sleep_time
+            fi
+            
+            attempt=$((attempt + 1))
+          done
 
       - name: Revisar e Fazer o Commit das Mudanças
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add README.md CHANGELOG.md
-          git commit -m "${{ github.event.inputs.mensagem_commit }}" || true
-          git push
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if git diff --quiet HEAD -- README.md CHANGELOG.md; then
+            echo "📝 Nenhuma mudança detectada"
+          else
+            echo "📝 Commitando mudanças..."
+            git add README.md CHANGELOG.md
+            git commit -m "${{ github.event.inputs.mensagem_commit }}"
+            git push
+            echo "✅ Mudanças commitadas"
+          fi
