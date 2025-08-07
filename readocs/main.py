@@ -1,5 +1,4 @@
 from agents.doc_agent import doc_agent
-from modules.file_utils import read_file, list_files
 from agents.curation_agent import curation_agent
 from agno.team import Team
 from agno.models.anthropic import Claude
@@ -17,7 +16,7 @@ PROJECT_FOLDER = "readocs"  # Nome da pasta com o código
 ROOT_DIR = ".."             # Onde criar README/CHANGELOG (.. = pasta pai)
 
 # Para outros projetos, mude apenas essas variáveis:
-# PROJECT_FOLDER = "src"     # ou "app", "backend", etc.  
+# PROJECT_FOLDER = "src"     # ou "app", "backend", etc.
 # ROOT_DIR = "."             # ou "../..", etc.
 
 # =============================================
@@ -72,6 +71,28 @@ def get_next_version():
         print(f"Erro ao ler CHANGELOG: {e}")
         return "0.1.0"
 
+# Funções utilitárias que podem ser usadas como ferramentas
+def read_file(path: str) -> str:
+    """Lê o conteúdo de um arquivo"""
+    if not os.path.exists(path):
+        return f"⚠️ Arquivo '{path}' não encontrado."
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except UnicodeDecodeError:
+        with open(path, "r", encoding="latin-1", errors="replace") as f:
+            return f.read()
+    except Exception as e:
+        return f"Erro ao ler '{path}': {e}"
+
+def list_files(directory: str) -> str:
+    """Lista todos os arquivos em um diretório"""
+    try:
+        items = os.listdir(directory)
+        return "\n".join(items)
+    except Exception as e:
+        return f"Erro ao listar arquivos: {e}"
+
 def main():
     # Configura diretórios automaticamente
     project_path = setup_directories()
@@ -100,7 +121,9 @@ def main():
             id="claude-3-haiku-20240307",
             api_key=os.getenv("ANTHROPIC_API_KEY")
         ),
-        tools=[read_file, list_files],
+        # A nova versão do Agno já registra as ferramentas automaticamente,
+        # mas adicioná-las explicitamente não causa problema.
+        tools=[read_file, list_files], 
         success_criteria="Atualizar automaticamente a documentação técnica com curadoria humana.",
         instructions=[
             "Documentação deve ser clara, concisa e em markdown",
@@ -135,7 +158,3 @@ def main():
     
     print(f"\n✅ Documentação gerada!")
     print(f"📄 README.md e CHANGELOG.md criados no diretório atual")
-
-
-if __name__ == "__main__":
-    main()
