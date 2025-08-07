@@ -8,7 +8,6 @@ Este projeto tem como objetivo gerar automaticamente a documentação técnica d
 - `main.py`: script principal que configura o ambiente e executa os agentes
 
 ## Instalação
-## Instalação
 
 ### Pré-requisitos
 - Python 3.x
