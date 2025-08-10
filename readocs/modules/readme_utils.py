@@ -17,17 +17,23 @@ def update_readme(section_title: str, section_content: str, project_title: str =
         Uma mensagem de sucesso ou erro.
     """
     path = "README.md"
+    # Respeita flags de execução via env
+    dry_run = os.getenv("READOCS_DRY_RUN", "0") == "1"
+    skip_clean = os.getenv("READOCS_SKIP_CLEAN", "0") == "1"
     
     # CORREÇÃO AUTOMÁTICA: Limpa duplicatas antes de qualquer modificação
-    if os.path.exists(path):
+    if os.path.exists(path) and not skip_clean:
         ensure_clean_readme(path)
     
     # 1. Se o README.md não existir, crie-o com o título do projeto e a nova seção.
     if not os.path.exists(path):
         content = f"# {project_title}\n\n## {section_title}\n{section_content}\n"
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-        return f"README.md criado com a seção '{section_title}'."
+        if dry_run:
+            return f"[dry-run] Criaria README.md com a seção '{section_title}'."
+        else:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            return f"README.md criado com a seção '{section_title}'."
 
     # 2. Se o arquivo existir, leia o conteúdo completo.
     with open(path, "r", encoding="utf-8") as f:
@@ -57,20 +63,28 @@ def update_readme(section_title: str, section_content: str, project_title: str =
             flags=re.DOTALL | re.MULTILINE
         )
         
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(updated_content)
-        
-        # CORREÇÃO PÓS-PROCESSAMENTO: Limpa duplicatas que possam ter sido criadas
-        ensure_clean_readme(path)
+        if dry_run:
+            return f"[dry-run] Atualizaria a seção '{section_title}'."
+        else:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(updated_content)
+            
+            # CORREÇÃO PÓS-PROCESSAMENTO: Limpa duplicatas que possam ter sido criadas
+            if not skip_clean:
+                ensure_clean_readme(path)
             
         return f"Seção '{section_title}' atualizada com sucesso."
     else:
         # 4. Se a seção não for encontrada, adicione-a no final do arquivo.
         content += f"\n{new_section_content_with_title}"
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-        
-        # CORREÇÃO PÓS-PROCESSAMENTO: Limpa duplicatas que possam ter sido criadas
-        ensure_clean_readme(path)
+        if dry_run:
+            return f"[dry-run] Adicionaria a seção '{section_title}'."
+        else:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            
+            # CORREÇÃO PÓS-PROCESSAMENTO: Limpa duplicatas que possam ter sido criadas
+            if not skip_clean:
+                ensure_clean_readme(path)
             
         return f"Seção '{section_title}' adicionada com sucesso."

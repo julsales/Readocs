@@ -1,8 +1,8 @@
 from agno.agent import Agent
 from agno.models.anthropic import Claude
-from modules.readme_utils import update_readme
-from modules.changelog_utils import update_changelog
-from modules.file_utils import read_file, list_files
+from ..modules.readme_utils import update_readme
+from ..modules.changelog_utils import update_changelog
+from ..modules.file_utils import read_file, list_files
 import os
 
 def clean_readme_duplicates_tool(readme_path: str = "README.md") -> str:
@@ -17,11 +17,13 @@ def clean_readme_duplicates_tool(readme_path: str = "README.md") -> str:
     except Exception as e:
         return f"⚠️ Erro na limpeza: {e}"
 
+model_id = os.getenv("READOCS_MODEL_ID", "claude-3-haiku-20240307")
+
 doc_agent = Agent(
     name="Doc Agent", 
     role="Atualiza README.md e CHANGELOG.md com base em guidelines",
     model=Claude(
-        id="claude-3-haiku-20240307",
+    id=model_id,
         api_key=os.getenv("ANTHROPIC_API_KEY")
     ),
     tools=[update_readme, update_changelog, read_file, list_files, clean_readme_duplicates_tool],

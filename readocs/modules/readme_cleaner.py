@@ -18,6 +18,10 @@ def fix_readme_duplicates(readme_path: str = "README.md") -> bool:
     """
     if not os.path.exists(readme_path):
         return False
+    # Respeita flags
+    if os.getenv("READOCS_SKIP_CLEAN", "0") == "1":
+        return False
+    dry_run = os.getenv("READOCS_DRY_RUN", "0") == "1"
         
     try:
         with open(readme_path, 'r', encoding='utf-8') as f:
@@ -56,7 +60,7 @@ def fix_readme_duplicates(readme_path: str = "README.md") -> bool:
                     cleaned_lines.append(line)
         
         # Se corrigiu algo, escreve de volta
-        if fixed_something:
+        if fixed_something and not dry_run:
             with open(readme_path, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(cleaned_lines))
                 
