@@ -108,7 +108,12 @@ def check_and_setup_venv():
         print(f"   1. Usar ambiente existente (recomendado)")
         print(f"   2. Criar novo ambiente")
         print(f"   3. Continuar sem ambiente virtual")
-        choice = input(f"   Escolha (1/2/3): ").strip()
+        
+        if is_ci_environment():
+            print_info("CI detectado - continuando sem ambiente virtual (opção 3)")
+            choice = "3"
+        else:
+            choice = input(f"   Escolha (1/2/3): ").strip()
         
         if choice == "1":
             # Ativa o ambiente virtual e executa o script novamente
@@ -149,6 +154,10 @@ def check_and_setup_venv():
             print_info("Recomendamos usar venv para evitar conflitos de dependências")
             return True
     else:
+        if is_ci_environment():
+            print_info("Ambiente CI detectado - continuando sem ambiente virtual")
+            return True
+        
         choice = input("\n🤔 Deseja criar um ambiente virtual? (s/N): ").strip().lower()
         if choice in ['s', 'sim', 'y', 'yes']:
             return create_new_venv()
@@ -159,7 +168,11 @@ def check_and_setup_venv():
 
 def create_new_venv():
     """Cria um novo ambiente virtual."""
-    venv_name = input("📁 Nome do ambiente virtual (padrão: .venv): ").strip() or ".venv"
+    if is_ci_environment():
+        venv_name = ".venv"
+        print_info(f"CI detectado - usando nome padrão: {venv_name}")
+    else:
+        venv_name = input("📁 Nome do ambiente virtual (padrão: .venv): ").strip() or ".venv"
     
     # Verifica se já existe
     if Path(venv_name).exists():
@@ -292,7 +305,11 @@ def create_env_file():
         return True
     
     print("\n🔑 Configuração da API Key:")
-    api_key = input("Digite sua chave API do Anthropic (ou Enter para configurar depois): ").strip()
+    if is_ci_environment():
+        api_key = ""
+        print_info("CI detectado - pular configuração de API key")
+    else:
+        api_key = input("Digite sua chave API do Anthropic (ou Enter para configurar depois): ").strip()
     
     # Seleção do modelo Claude
     print("\n🤖 Seleção do Modelo Claude:")
@@ -312,19 +329,23 @@ def create_env_file():
     
     print("\n💡 Dica: Haiku é mais barato e rápido para a maioria dos projetos")
     
-    while True:
-        choice = input("Escolha um modelo (1-6, ou Enter para padrão Haiku): ").strip()
-        
-        if not choice:  # Enter pressionado
-            selected_model = "claude-3-haiku-20240307"
-            print("✅ Usando modelo padrão: Claude 3 Haiku")
-            break
-        elif choice in claude_models:
-            selected_model, description = claude_models[choice]
-            print(f"✅ Selecionado: {description}")
-            break
-        else:
-            print("❌ Escolha inválida. Digite um número de 1 a 6 ou Enter.")
+    if is_ci_environment():
+        selected_model = "claude-3-haiku-20240307"
+        print_info("CI detectado - usando modelo padrão: Claude 3 Haiku")
+    else:
+        while True:
+            choice = input("Escolha um modelo (1-6, ou Enter para padrão Haiku): ").strip()
+            
+            if not choice:  # Enter pressionado
+                selected_model = "claude-3-haiku-20240307"
+                print("✅ Usando modelo padrão: Claude 3 Haiku")
+                break
+            elif choice in claude_models:
+                selected_model, description = claude_models[choice]
+                print(f"✅ Selecionado: {description}")
+                break
+            else:
+                print("❌ Escolha inválida. Digite um número de 1 a 6 ou Enter.")
     
     env_content = f"""# Configuração do Readocs
 ANTHROPIC_API_KEY={api_key}
@@ -364,6 +385,17 @@ def test_installation():
     except Exception as e:
         print(f"❌ Erro no teste: {e}")
         return False
+
+def is_ci_environment():
+    """Detecta se está rodando em ambiente de CI/CD."""
+    ci_vars = [
+        'CI', 'CONTINUOUS_INTEGRATION',
+        'GITHUB_ACTIONS', 'GITHUB_WORKFLOW',
+        'TRAVIS', 'CIRCLECI', 'JENKINS_URL',
+        'GITLAB_CI', 'AZURE_PIPELINES',
+        'BUILD_BUILDID', 'TF_BUILD'
+    ]
+    return any(os.environ.get(var) for var in ci_vars)
 
 def main():
     """Setup principal."""
