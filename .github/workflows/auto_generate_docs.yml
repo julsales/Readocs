@@ -29,6 +29,8 @@ jobs:
           sudo apt-get install -y jq
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Instalar Readocs em modo desenvolvimento
+          pip install -e .
           
       - name: 🔍 Verificar se já existe um PR aberto
         id: check_pr
@@ -73,8 +75,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          cd readocs
-          python main.py
+          python -m readocs generate
 
       - name: 🔧 Substituir {{BADGE_SECTION}} pelo HTML de badges
         run: |

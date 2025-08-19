@@ -179,7 +179,7 @@ def run_generation() -> bool:
 
     team = Team(
         mode="coordinate",
-        members=[curation_agent, doc_agent],
+        members=[curation_agent(), doc_agent()],
         model=Claude(
             id=MODEL_ID,
             api_key=os.getenv("ANTHROPIC_API_KEY"),

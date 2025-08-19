@@ -1,7 +1,7 @@
 <div align="center">
-    
-# Readocs 
-    
+
+# Readocs
+
 <img width="250" height="250" alt="Readocs Logo" src="https://github.com/user-attachments/assets/9545feb4-e2e2-4ff4-af61-514f814cd564" />
 
 **🚀 Gerador inteligente de documentação usando IA para qualquer projeto**
@@ -20,105 +20,6 @@ O **Readocs** é uma ferramenta universal que utiliza inteligência artificial p
 - **🔧 Flexível**: CLI simples com opções configuráveis
 - **🎯 Preciso**: Zero conteúdo genérico - apenas informações reais do projeto
 
-## 🚀 Instalação
-
-### Pré-requisitos
-- Python 3.8 ou superior
-- Chave API do Anthropic (Claude)
-
-### Instalação Automática (Recomendada) 🎯
-
-```bash
-# Clone o repositório
-git clone https://github.com/julsales/Readocs.git
-cd readocs
-
-# Execute o setup automático
-python setup.py
-```
-
-**O script de setup irá:**
-- Verificar se você tem uma venv existente
-- Instalar todas as dependências  
-- Configurar o arquivo `.env` com a chave da API 
-
-### Instalação Manual
-
-```bash
-# Clone o repositório
-git clone https://github.com/julsales/Readocs.git
-cd readocs
-
-# Crie e ative um ambiente virtual
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# Linux/Mac
-source .venv/bin/activate
-
-# Instale as dependências
-pip install -r requirements.txt
-```
-
-### Configuração da API
-Crie um arquivo `.env` seguindo o padrão do arquivo `.env.example` :
-```env
-ANTHROPIC_API_KEY=sua_chave_api_aqui
-
-READOCS_MODEL_ID= id_do_modelo
-
-# Executar em modo de teste sem modificar arquivos (0=não, 1=sim)
-READOCS_DRY_RUN=0
-
-# Pular limpeza automática de duplicatas (0=não, 1=sim)
-READOCS_SKIP_CLEAN=0
-
-# Pular criação/atualização do CHANGELOG.md (0=não, 1=sim)
-READOCS_SKIP_CHANGELOG=0
-
-```
-
-## 💻 Como Usar
-
-### Uso Básico
-
-```bash
-# Documentar o projeto atual
-python -m readocs generate
-
-# Documentar um projeto específico
-python -m readocs generate /caminho/para/projeto
-
-# Documentar com saída em diretório específico
-python -m readocs generate /projeto --output /docs
-
-# Modo de teste (sem modificar arquivos)
-python -m readocs generate --dry-run
-```
-
-### Exemplos Práticos
-
-```bash
-# Documentar um projeto Python
-python -m readocs generate ./meu-projeto-python
-
-# Documentar um projeto Node.js
-python -m readocs generate ./meu-app-react
-
-# Documentar múltiplos projetos
-for project in projeto1 projeto2 projeto3; do
-    python -m readocs generate ./$project
-done
-```
-
-### Opções Disponíveis
-
-- `--output, -o`: Diretório de saída para a documentação
-- `--model`: Modelo Claude a usar (padrão: claude-3-haiku-20240307)
-- `--dry-run`: Executa análise sem modificar arquivos
-- `--skip-clean`: Pula limpeza de duplicatas no README
-- `--skip-changelog`: Não atualiza o CHANGELOG.md
-
 ## 🛠️ Tipos de Projeto Suportados
 
 O Readocs detecta automaticamente e adapta a documentação para:
@@ -131,6 +32,119 @@ O Readocs detecta automaticamente e adapta a documentação para:
 - **Go**: Detecta go.mod e arquivos .go
 - **Rust**: Processa Cargo.toml
 - **Docker**: Identifica Dockerfile e docker-compose.yml
+
+## 🚀 Instalação
+
+### Pré-requisitos
+
+- Python 3.8 ou superior
+- Chave API do Anthropic (Claude)
+
+### Para Usuários (Instalação Simples) 👤
+
+```bash
+# Instale diretamente do GitHub
+pip install git+https://github.com/julsales/Readocs.git
+
+# Configure interativamente
+python -m readocs setup
+```
+
+### Para Desenvolvedores (Setup Completo) 🎯
+
+```bash
+# Clone o repositório
+git clone https://github.com/julsales/Readocs.git
+cd Readocs
+
+# Execute o setup automático com detecção de ambiente virtual (venv)
+python -m readocs dev-setup
+```
+
+### Instalação Manual
+
+```bash
+# Clone o repositório
+git clone https://github.com/julsales/Readocs.git
+cd Readocs
+
+# Crie e ative um ambiente virtual
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux/Mac
+source .venv/bin/activate
+
+# Instale em modo desenvolvimento
+pip install -e .
+```
+
+Após isso, crie um arquivo `.env`:
+
+```env
+ANTHROPIC_API_KEY=sua_chave_api_aqui
+READOCS_MODEL_ID=claude-3-haiku-20240307
+READOCS_DRY_RUN=0
+READOCS_SKIP_CLEAN=0
+READOCS_SKIP_CHANGELOG=0
+```
+
+## 📖 Como Usar
+
+### Comandos disponíveis
+
+```bash
+# Configuração
+python -m readocs setup        # Configuração inicial (API key)
+python -m readocs dev-setup    # Setup completo para desenvolvedores
+
+# Geração de documentação
+python -m readocs generate [projeto] [opções]
+
+# Utilitários
+python -m readocs env          # Informações do ambiente
+python -m readocs version      # Versão instalada
+python -m readocs --help       # Ajuda
+```
+
+### Opções do `generate`
+
+- `--output, -o`: Diretório de saída
+- `--model`: Modelo Claude (haiku | sonnet)
+- `--dry-run`: Modo teste (não modifica arquivos)
+- `--skip-clean`: Não limpa duplicatas
+- `--skip-changelog`: Não atualiza CHANGELOG
+
+### Exemplos de uso
+
+```bash
+# Primeiro uso
+python -m readocs setup
+python -m readocs generate
+
+# Casos básicos
+python -m readocs generate                              # Projeto atual
+python -m readocs generate ./meu-projeto               # Projeto específico
+python -m readocs generate ./projeto --output ./docs   # Saída personalizada
+
+# Diferentes tipos de projeto
+python -m readocs generate ./projeto-python
+python -m readocs generate ./app-react
+python -m readocs generate ./api-java
+
+# Com opções
+python -m readocs generate --dry-run                    # Teste sem modificar
+python -m readocs generate --model claude-3-5-sonnet   # Modelo mais potente
+python -m readocs generate --skip-changelog             # Sem CHANGELOG
+
+# Múltiplos projetos
+for projeto in app1 app2 api; do
+    python -m readocs generate ./$projeto
+done
+```
+
 
 ## 📁 Estrutura do Projeto
 
@@ -154,21 +168,6 @@ readocs/
 └── README.md              # Este arquivo
 ```
 
-## 🔧 Configuração Avançada
-
-### Variáveis de Ambiente
-
-```env
-# Configurações da API
-ANTHROPIC_API_KEY=sua_chave_api_aqui
-
-# Configurações padrão
-READOCS_MODEL_ID=claude-3-haiku-20240307
-READOCS_DRY_RUN=0
-READOCS_SKIP_CLEAN=0
-READOCS_SKIP_CHANGELOG=0
-```
-
 ## 🤝 Como Contribuir
 
 1. Fork o projeto
@@ -189,5 +188,7 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 ---
 
 <div align="center">
+
 Desenvolvido com ❤️ usando IA para tornar a documentação de código mais inteligente
+
 </div>

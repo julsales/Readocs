@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "readocs"
+version = "0.1.0"
+description = "Gerador de README e CHANGELOG baseados no seu código com IA"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Readocs Team"}
+]
+keywords = ["documentation", "readme", "changelog", "ai", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "anthropic>=0.18.0",
+    "agno>=0.0.28",
+    "typer[all]>=0.12.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "isort>=5.0.0",
+    "flake8>=6.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/julsales/Readocs"
+Repository = "https://github.com/julsales/Readocs"
+Issues = "https://github.com/julsales/Readocs/issues"
+Documentation = "https://github.com/julsales/Readocs/blob/main/README.md"
+
+[project.scripts]
+readocs = "readocs.cli:app"
+
+[tool.setuptools]
+packages = ["readocs", "readocs.agents", "readocs.modules"]
+
+[tool.setuptools.package-data]
+readocs = ["*.py"]

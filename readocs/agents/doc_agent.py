@@ -44,7 +44,7 @@ def get_claude_model():
         print("Modelos Claude disponíveis:")
         for model, description in CLAUDE_MODELS.items():
             print(f"   • {model}: {description}")
-        print(f"🔧 Usando modelo padrão: claude-3-haiku-20240307")
+        print(f"Usando modelo padrão: claude-3-haiku-20240307")
         model_id = "claude-3-haiku-20240307"
     
     try:
@@ -96,5 +96,12 @@ def get_doc_agent():
     
     return _doc_agent
 
-# Para compatibilidade com código existente
-doc_agent = get_doc_agent()
+# Para compatibilidade com código existente - lazy initialization
+_doc_agent_instance = None
+
+def doc_agent():
+    """Retorna instância do doc_agent, criando apenas quando necessário."""
+    global _doc_agent_instance
+    if _doc_agent_instance is None:
+        _doc_agent_instance = get_doc_agent()
+    return _doc_agent_instance
