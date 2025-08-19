@@ -1,4 +1,4 @@
-# Readocs - Gerador Universal de Documentação
+# Readocs 
 
 <div align="center">
 
@@ -30,7 +30,7 @@ O **Readocs** é uma ferramenta universal que utiliza inteligência artificial p
 
 ```bash
 # Clone o repositório
-git clone https://github.com/yourusername/readocs.git
+git clone https://github.com/julsales/Readocs.git
 cd readocs
 
 # Execute o setup automático
@@ -46,7 +46,7 @@ python setup.py
 
 ```bash
 # Clone o repositório
-git clone https://github.com/yourusername/readocs.git
+git clone https://github.com/julsales/Readocs.git
 cd readocs
 
 # Crie e ative um ambiente virtual
