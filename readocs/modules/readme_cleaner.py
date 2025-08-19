@@ -77,4 +77,4 @@ def ensure_clean_readme(readme_path: str = "README.md") -> None:
     try:
         fix_readme_duplicates(readme_path)
     except:
-        pass  # Silencioso mesmo em caso de erro
+        pass  

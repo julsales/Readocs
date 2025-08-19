@@ -105,6 +105,7 @@ python -m readocs generate [projeto] [opções]
 
 # Utilitários
 python -m readocs env          # Informações do ambiente
+python -m readocs models       # Lista modelos Claude disponíveis
 python -m readocs version      # Versão instalada
 python -m readocs --help       # Ajuda
 ```

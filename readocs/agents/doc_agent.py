@@ -6,13 +6,13 @@ from ..modules.file_utils import read_file, list_files
 import os
 from dotenv import load_dotenv
 
-# Modelos Claude disponíveis
+
 CLAUDE_MODELS = {
     "claude-3-haiku-20240307": "Claude 3 Haiku (Rápido e econômico)",
     "claude-3-5-haiku-20241022": "Claude 3.5 Haiku (Mais recente)",
     "claude-3-sonnet-20240229": "Claude 3 Sonnet (Equilibrado)",
-    "claude-3-5-sonnet-20240620": "Claude 3.5 Sonnet (Melhor performance)",
-    "claude-3-5-sonnet-20241022": "Claude 3.5 Sonnet (Mais recente)",
+    "claude-3-5-sonnet-20240620": "Claude 3.5 Sonnet (Junho 2024)",
+    "claude-3-5-sonnet-20241022": "Claude 3.5 Sonnet (Outubro 2024)",
     "claude-3-opus-20240229": "Claude 3 Opus (Mais potente)"
 }
 

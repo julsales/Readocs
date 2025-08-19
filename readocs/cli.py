@@ -38,7 +38,7 @@ def generate(
     model: str = typer.Option(
         os.getenv("READOCS_MODEL_ID", "claude-3-haiku-20240307"),
         "--model",
-        help="Modelo a ser usado pelo agente (ex.: claude-3-haiku-20240307)",
+        help="Modelo Claude: números 1-6, nomes (haiku, sonnet, opus) ou IDs completos. Use 'python -m readocs models' para ver todos",
         show_default=True,
     ),
     dry_run: bool = typer.Option(
@@ -59,10 +59,14 @@ def generate(
 ):
     """Gera documentação com base no código do projeto."""
     print_banner()
+    
+    # Resolver o modelo (número, nome parcial ou ID completo)
+    resolved_model = resolve_model_id(model)
+    
     set_runtime_options(
         project_folder=project_path,  # Usar project_path agora
         root_dir=output_dir,  # Usar output_dir como root_dir
-        model=model,
+        model=resolved_model,
         dry_run=dry_run,
         skip_clean=skip_clean,
         skip_changelog=skip_changelog,
@@ -81,7 +85,7 @@ def version():
     try:
         v = _v("readocs")
     except PackageNotFoundError:
-        v = "0.0.0"
+        v = "0.0.1"
     print(f"Readocs CLI v{v}")
 
 
@@ -240,12 +244,26 @@ def setup():
         print(" API key é obrigatória")
         raise typer.Exit(1)
     
-    print("\nEscolha o modelo Claude (padrão: Haiku):")
-    print("   1. claude-3-haiku-20240307 (Rápido e econômico)")
-    print("   2. claude-3-5-sonnet-20241022 (Mais potente)")
+    print("\nEscolha o modelo Claude:")
+    print("   1. claude-3-haiku-20240307 (Rápido e econômico) [PADRÃO]")
+    print("   2. claude-3-5-haiku-20241022 (Haiku mais recente)")
+    print("   3. claude-3-sonnet-20240229 (Sonnet clássico)")
+    print("   4. claude-3-5-sonnet-20240620 (Sonnet 3.5 junho)")
+    print("   5. claude-3-5-sonnet-20241022 (Sonnet 3.5 mais recente)")
+    print("   6. claude-3-opus-20240229 (Mais potente e caro)")
     
-    choice = input("Escolha (1/2 ou Enter para padrão): ").strip()
-    model = "claude-3-5-sonnet-20241022" if choice == "2" else "claude-3-haiku-20240307"
+    choice = input("Escolha (1-6 ou Enter para padrão): ")
+
+    models = {
+        "1": "claude-3-haiku-20240307",
+        "2": "claude-3-5-haiku-20241022", 
+        "3": "claude-3-sonnet-20240229",
+        "4": "claude-3-5-sonnet-20240620",
+        "5": "claude-3-5-sonnet-20241022",
+        "6": "claude-3-opus-20240229"
+    }
+    
+    model = models.get(choice, "claude-3-haiku-20240307")
     
     # Criar .env
     env_content = f"""# Readocs Configuration
@@ -270,6 +288,10 @@ def show_env():
     # Informações da API
     api = os.getenv("ANTHROPIC_API_KEY")
     print("ANTHROPIC_API_KEY:", "definida" if api else "não definida")
+    
+    # Informações do modelo
+    current_model = os.getenv("READOCS_MODEL_ID", "claude-3-haiku-20240307")
+    print(f"READOCS_MODEL_ID: {current_model}")
     
     # Informações do diretório
     print("CWD:", Path.cwd())
@@ -310,6 +332,125 @@ def show_env():
     print(f"\n=== SISTEMA ===")
     print(f"OS: {os.name}")
     print(f"Platform: {sys.platform}")
+
+
+@app.command("models")
+def list_models():
+    """Lista todos os modelos Claude disponíveis com suas características."""
+    print_banner("Modelos Disponíveis")
+    
+    models = [
+        {
+            "name": "claude-3-haiku-20240307",
+            "family": "Haiku",
+            "version": "3.0",
+            "speed": "⚡ Muito rápido",
+            "cost": "💰 Econômico",
+            "quality": "⭐⭐⭐ Boa",
+            "best_for": "Tarefas simples, prototipagem rápida"
+        },
+        {
+            "name": "claude-3-5-haiku-20241022", 
+            "family": "Haiku",
+            "version": "3.5",
+            "speed": "⚡ Muito rápido",
+            "cost": "💰 Econômico",
+            "quality": "⭐⭐⭐⭐ Muito boa",
+            "best_for": "Melhor versão do Haiku, boa para a maioria das tarefas"
+        },
+        {
+            "name": "claude-3-sonnet-20240229",
+            "family": "Sonnet", 
+            "version": "3.0",
+            "speed": "🔄 Moderado",
+            "cost": "💰💰 Médio",
+            "quality": "⭐⭐⭐⭐ Muito boa",
+            "best_for": "Análise detalhada, documentação complexa"
+        },
+        {
+            "name": "claude-3-5-sonnet-20240620",
+            "family": "Sonnet",
+            "version": "3.5 (Jun)",
+            "speed": "🔄 Moderado",
+            "cost": "💰💰 Médio",
+            "quality": "⭐⭐⭐⭐⭐ Excelente",
+            "best_for": "Projetos grandes, análise profunda"
+        },
+        {
+            "name": "claude-3-5-sonnet-20241022",
+            "family": "Sonnet",
+            "version": "3.5 (Out)",
+            "speed": "🔄 Moderado",
+            "cost": "💰💰 Médio", 
+            "quality": "⭐⭐⭐⭐⭐ Excelente",
+            "best_for": "Versão mais recente, melhor qualidade geral"
+        },
+        {
+            "name": "claude-3-opus-20240229",
+            "family": "Opus",
+            "version": "3.0",
+            "speed": "🐌 Mais lento",
+            "cost": "💰💰💰 Caro",
+            "quality": "⭐⭐⭐⭐⭐ Excepcional",
+            "best_for": "Projetos críticos, máxima qualidade"
+        }
+    ]
+    
+    print("📋 Modelos Claude disponíveis para usar no Readocs:\n")
+    
+    for i, model in enumerate(models, 1):
+        print(f"{'='*60}")
+        print(f"🤖 {i}. {model['family']} {model['version']}")
+        print(f"📝 ID: {model['name']}")
+        print(f"⚡ Velocidade: {model['speed']}")
+        print(f"💰 Custo: {model['cost']}")
+        print(f"🎯 Qualidade: {model['quality']}")
+        print(f"✨ Melhor para: {model['best_for']}")
+        print()
+    
+    print("💡 Dicas de uso:")
+    print("   • Para desenvolvimento/teste: Haiku 3.5 (claude-3-5-haiku-20241022)")
+    print("   • Para uso geral: Sonnet 3.5 Out (claude-3-5-sonnet-20241022)")
+    print("   • Para projetos críticos: Opus 3.0 (claude-3-opus-20240229)")
+    print()
+    print("🔧 Como usar:")
+    print("   python -m readocs generate --model claude-3-5-sonnet-20241022")
+    print("   ou configure no setup: python -m readocs setup")
+
+
+def resolve_model_id(model_input: str) -> str:
+    """Converte número (1-6) ou ID parcial em ID completo do modelo."""
+    models_map = {
+        "1": "claude-3-haiku-20240307",
+        "2": "claude-3-5-haiku-20241022", 
+        "3": "claude-3-sonnet-20240229",
+        "4": "claude-3-5-sonnet-20240620",
+        "5": "claude-3-5-sonnet-20241022",
+        "6": "claude-3-opus-20240229"
+    }
+    
+    # Se for um número de 1-6, converter
+    if model_input in models_map:
+        return models_map[model_input]
+    
+    # Se for um ID completo, retornar como está
+    if model_input.startswith("claude-"):
+        return model_input
+    
+    # Se for nome parcial, tentar mapear
+    partial_map = {
+        "haiku": "claude-3-haiku-20240307",
+        "haiku-3.5": "claude-3-5-haiku-20241022",
+        "sonnet": "claude-3-sonnet-20240229", 
+        "sonnet-3.5": "claude-3-5-sonnet-20241022",
+        "opus": "claude-3-opus-20240229"
+    }
+    
+    if model_input.lower() in partial_map:
+        return partial_map[model_input.lower()]
+    
+    # Se não encontrou, retornar como estava
+    return model_input
 
 
 if __name__ == "__main__":
