@@ -1,7 +1,7 @@
-# Readocs 
-
 <div align="center">
-
+    
+# Readocs 
+    
 <img width="250" height="250" alt="Readocs Logo" src="https://github.com/user-attachments/assets/9545feb4-e2e2-4ff4-af61-514f814cd564" />
 
 **🚀 Gerador inteligente de documentação usando IA para qualquer projeto**
@@ -61,9 +61,20 @@ pip install -r requirements.txt
 ```
 
 ### Configuração da API
-Crie um arquivo `.env` seguindo o padrão do arquivo .env.example :
+Crie um arquivo `.env` seguindo o padrão do arquivo `.env.example` :
 ```env
 ANTHROPIC_API_KEY=sua_chave_api_aqui
+
+READOCS_MODEL_ID= id_do_modelo
+
+# Executar em modo de teste sem modificar arquivos (0=não, 1=sim)
+READOCS_DRY_RUN=0
+
+# Pular limpeza automática de duplicatas (0=não, 1=sim)
+READOCS_SKIP_CLEAN=0
+
+# Pular criação/atualização do CHANGELOG.md (0=não, 1=sim)
+READOCS_SKIP_CHANGELOG=0
 
 ```
 
