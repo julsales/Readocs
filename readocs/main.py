@@ -7,7 +7,6 @@ from typing import Optional
 from dotenv import load_dotenv
 from agno.team import Team
 from agno.models.anthropic import Claude
-from .ui import print_banner
 
 from .agents.doc_agent import doc_agent
 from .agents.curation_agent import curation_agent
@@ -22,8 +21,8 @@ except Exception:
         return False
 
 # ========== CONFIG DE EXECUÇÃO (padrões; sobrescritura via CLI/env) ==========
-PROJECT_FOLDER = os.getenv("READOCS_PROJECT_FOLDER", "readocs")
-ROOT_DIR = os.getenv("READOCS_ROOT_DIR", "..")
+PROJECT_FOLDER = os.getenv("READOCS_PROJECT_FOLDER", ".")  # Padrão: diretório atual
+ROOT_DIR = os.getenv("READOCS_ROOT_DIR", ".")  # Padrão: diretório atual
 MODEL_ID = os.getenv("READOCS_MODEL_ID", "claude-3-haiku-20240307")
 DRY_RUN = os.getenv("READOCS_DRY_RUN", "0") == "1"
 SKIP_CLEAN = os.getenv("READOCS_SKIP_CLEAN", "0") == "1"
@@ -31,8 +30,6 @@ SKIP_CHANGELOG = os.getenv("READOCS_SKIP_CHANGELOG", "0") == "1"
 # ==========================================================================
 
 
-def print_header():
-    print_banner("Documentação personalizada com agentes")
 
 
 def print_step(step: int, total: int, message: str):
@@ -40,21 +37,36 @@ def print_step(step: int, total: int, message: str):
 
 
 def setup_directories(project_folder: Optional[str] = None, root_dir: Optional[str] = None) -> str:
-    pf = project_folder or PROJECT_FOLDER
-    rd = root_dir or ROOT_DIR
-    current = Path.cwd()
-
-    if (current / pf).exists():
-        project_path = f"./{pf}"
-    elif current.name == pf:
-        os.chdir(current.parent)
-        project_path = f"./{pf}"
-    else:
-        os.chdir(Path(rd).resolve())
-        project_path = f"./{pf}"
-
-    print(f"📁 Analisando: {project_path}")
-    return project_path
+    """Configura e valida o diretório do projeto a ser analisado."""
+    # Se não especificado, usa o diretório atual
+    if not project_folder or project_folder == ".":
+        project_path = Path.cwd()
+        print(f"📁 Analisando projeto atual: {project_path}")
+        return str(project_path)
+    
+    # Se especificado um caminho absoluto ou relativo
+    project_path = Path(project_folder).resolve()
+    
+    if not project_path.exists():
+        # Tenta encontrar relativo ao root_dir se especificado
+        if root_dir:
+            alt_path = Path(root_dir) / project_folder
+            if alt_path.exists():
+                project_path = alt_path.resolve()
+            else:
+                raise FileNotFoundError(f"Projeto não encontrado: {project_folder}")
+        else:
+            raise FileNotFoundError(f"Projeto não encontrado: {project_folder}")
+    
+    if not project_path.is_dir():
+        raise NotADirectoryError(f"Caminho especificado não é um diretório: {project_path}")
+    
+    # Muda para o diretório do projeto para análise
+    original_cwd = Path.cwd()
+    os.chdir(project_path)
+    
+    print(f"📁 Analisando projeto: {project_path}")
+    return str(project_path)
 
 
 def get_next_version() -> str:
@@ -86,11 +98,20 @@ def tool_read_file(path: str) -> str:
 
 
 def tool_list_files(directory: str) -> str:
+    """Lista arquivos relevantes no diretório, ignorando pastas irrelevantes."""
     try:
         files = []
-        for root, _, filelist in os.walk(directory):
+        ignored_dirs = {'.git', '.vscode', '__pycache__', 'node_modules', '.pytest_cache', 
+                       'venv', '.venv', 'env', '.env', 'dist', 'build', '.next', 'target'}
+        
+        for root, dirs, filelist in os.walk(directory):
+            # Remove diretórios ignorados da lista de busca
+            dirs[:] = [d for d in dirs if d not in ignored_dirs]
+            
             for file in filelist:
-                if file.endswith((".py", ".md", ".txt", ".yml", ".yaml", ".json")):
+                # Inclui mais extensões relevantes
+                if file.endswith((".py", ".js", ".ts", ".jsx", ".tsx", ".java", ".cs", ".go", ".rs",
+                                ".md", ".txt", ".yml", ".yaml", ".json", ".toml", ".cfg", ".ini")):
                     rel_path = os.path.relpath(os.path.join(root, file), directory)
                     files.append(rel_path)
         return "\n".join(sorted(files))
@@ -128,22 +149,25 @@ def set_runtime_options(
 
 
 def run_generation() -> bool:
-    print_header()
 
-    print_step(1, 5, "Configurando projeto...")
-    project_path = setup_directories()
+    print_step(1, 6, "Configurando projeto...")
+    project_path = setup_directories(PROJECT_FOLDER, ROOT_DIR)
     load_dotenv()
 
     if "ANTHROPIC_API_KEY" not in os.environ:
         print("❌ ANTHROPIC_API_KEY não definida no .env")
         return False
 
-    print_step(2, 5, "Analisando versão...")
+    print_step(2, 6, "Detectando tipo de projeto...")
+    project_info = detect_project_info(project_path)
+    print(f"   🏷️  Nome: {project_info['name']}")
+    print(f"   📦 Tipos: {', '.join(project_info['types'])}")
+
+    print_step(3, 6, "Analisando versão...")
     next_version = get_next_version()
     current_date = datetime.now().strftime("%Y-%m-%d")
-    project_name = os.path.basename(project_path)
 
-    print_step(3, 5, "Limpando duplicatas...")
+    print_step(4, 6, "Limpando duplicatas...")
     try:
         if not SKIP_CLEAN and os.path.exists("README.md"):
             ensure_clean_readme("README.md")
@@ -151,7 +175,7 @@ def run_generation() -> bool:
     except Exception:
         pass
 
-    print_step(4, 5, "Conectando com Claude...")
+    print_step(5, 6, "Conectando com Claude...")
 
     team = Team(
         mode="coordinate",
@@ -176,37 +200,38 @@ def run_generation() -> bool:
     Você é um agente que deve analisar completamente o projeto para gerar a documentação personalizada.
     A documentação deve ser toda em português e seguir as diretrizes do projeto.
 
-    PROJETO: {project_name}
+    PROJETO: {project_info['name']}
+    TIPOS: {', '.join(project_info['types'])}
     VERSÃO: {next_version}
     DATA: {current_date}
     CÓDIGO EM: {project_path}
 
     Para o README.md, você deve:
-        1. Use a ferramenta 'list_files' para ter uma visão geral da estrutura do projeto em '{project_path}'.
-        2. Com base na lista de arquivos, use a ferramenta 'read_file' para analisar os arquivos relevantes, como 'main.py' e 'requirements.txt', para entender o propósito e as dependências do projeto.
-        3. Atualize o README.md com uma seção de 'Introdução' e uma de 'Instalação' baseadas na análise real.
-        4. Não cite a complexidade do projeto; pode fazer um pequeno pitch do que ele faz.
-        5. Se identificar venv, adicione instruções de ativação no Windows e Linux.
+        1. Use a ferramenta 'tool_list_files' para ter uma visão geral da estrutura do projeto.
+        2. Com base na lista de arquivos, use a ferramenta 'tool_read_file' para analisar os arquivos principais.
+        3. Atualize o README.md com seções apropriadas baseadas no tipo de projeto: {', '.join(project_info['types'])}.
+        4. Inclua seções de 'Introdução', 'Instalação', 'Uso' e outras relevantes.
+        5. Se identificar dependências (requirements.txt, package.json, etc.), adicione instruções claras de instalação.
+        6. Se identificar ambiente virtual, adicione instruções de ativação no Windows e Linux.
 
         Diretrizes para o CHANGELOG.md:
             1. Adicione uma nova entrada para a versão {next_version}.
             2. Inclua a data de hoje ({current_date}).
             3. Descreva as mudanças de forma clara e concisa.
             4. Relate mudanças feitas no README.md.
-            5. Se não houver mudanças significativas, use "Nenhuma mudança significativa".
 
     IMPORTANTE:
     - ZERO conteúdo genérico ou template
     - Documente apenas o que encontrar no código
-    - Se encontrar agentes, explique o que cada um faz
-    - Se encontrar APIs, liste os endpoints reais
-    - Se encontrar funções, documente as principais
+    - Adapte a documentação ao tipo de projeto detectado: {', '.join(project_info['types'])}
+    - Se encontrar APIs, endpoints, funções importantes, documente-as
     - Baseie tudo na análise real dos arquivos
+    - Use linguagem clara e profissional em português brasileiro
 
-    Comece analisando os arquivos agora.
+    Comece analisando os arquivos com tool_list_files agora.
     """
 
-    print_step(5, 5, "Gerando documentação...")
+    print_step(6, 6, "Gerando documentação...")
 
     def ensure_changelog_entry(version: str, date: str, note: str):
         if SKIP_CHANGELOG or DRY_RUN:
@@ -265,11 +290,87 @@ def run_generation() -> bool:
         return True
 
     except Exception as e:
-        print(f"❌ Erro: {e}")
+        error_msg = str(e).lower()
+        
+
+        if "rate limit" in error_msg or "too many requests" in error_msg or "429" in error_msg:
+            print(f"⚠️  Rate limit detectado: {e}")
+            print("💡 Sugestões:")
+            print("   - Aguarde alguns minutos antes de tentar novamente")
+            print("   - Use o modelo claude-3-haiku-20240307 (mais econômico) em READOCS_MODEL_ID")
+            print("   - Considere usar claude-3-5-haiku-20241022 (versão mais recente e rápida)")
+        elif "api key" in error_msg or "authentication" in error_msg:
+            print(f"🔑 Erro de autenticação: {e}")
+            print("💡 Verificar ANTHROPIC_API_KEY no arquivo .env")
+        else:
+            print(f"❌ Erro: {e}")
+            
         # Fallback: ainda garantir CHANGELOG e README mínimo
         ensure_changelog_entry(next_version, current_date, "- Falha na geração automática (ver logs).")
         ensure_minimal_readme()
         return False
+
+
+def detect_project_info(project_path: str) -> dict:
+    """Detecta automaticamente informações sobre o projeto."""
+    project_path = Path(project_path)
+    project_name = project_path.name
+    
+    # Detecta tipos de projeto
+    project_types = []
+    
+    # Python
+    if any(project_path.glob("*.py")) or (project_path / "setup.py").exists() or (project_path / "pyproject.toml").exists():
+        project_types.append("Python")
+    
+    # Node.js/JavaScript
+    if (project_path / "package.json").exists():
+        project_types.append("Node.js")
+        
+        # Verifica frameworks específicos
+        try:
+            import json
+            with open(project_path / "package.json", 'r', encoding='utf-8') as f:
+                pkg_data = json.load(f)
+                dependencies = {**pkg_data.get('dependencies', {}), **pkg_data.get('devDependencies', {})}
+                if 'react' in dependencies:
+                    project_types.append("React")
+                if 'next' in dependencies:
+                    project_types.append("Next.js")
+                if 'vue' in dependencies:
+                    project_types.append("Vue.js")
+        except:
+            pass
+    
+    # Java
+    if any(project_path.glob("*.java")) or (project_path / "pom.xml").exists():
+        project_types.append("Java")
+    
+    # .NET/C#
+    if any(project_path.glob("*.cs")) or any(project_path.glob("*.csproj")):
+        project_types.append(".NET")
+    
+    # Go
+    if (project_path / "go.mod").exists() or any(project_path.glob("*.go")):
+        project_types.append("Go")
+    
+    # Rust
+    if (project_path / "Cargo.toml").exists():
+        project_types.append("Rust")
+    
+    # Docker
+    if (project_path / "Dockerfile").exists() or (project_path / "docker-compose.yml").exists():
+        project_types.append("Docker")
+    
+    # Se não detectou nada específico
+    if not project_types:
+        project_types = ["Projeto genérico"]
+    
+    return {
+        'name': project_name,
+        'types': project_types,
+        'path': str(project_path)
+    }
 
 
 def main():

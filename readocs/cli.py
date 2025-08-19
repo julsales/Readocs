@@ -22,36 +22,35 @@ def setup_env(ctx: typer.Context):
 
 @app.command("generate")
 def generate(
-    project_folder: str = typer.Option(
-        "readocs",
-        "--project-folder",
-        help="Nome da pasta principal do projeto a analisar.",
+    project_path: str = typer.Argument(
+        ".",
+        help="Caminho para o projeto a ser documentado (padrão: diretório atual).",
         show_default=True,
     ),
-    root_dir: str = typer.Option(
-        "..",
-        "--root-dir",
-        help="Diretório raiz onde a pasta do projeto está localizada.",
-        show_default=True,
+    output_dir: str = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Diretório onde salvar a documentação (padrão: mesmo diretório do projeto).",
     ),
     model: str = typer.Option(
-        "claude-3-haiku-20240307",
+        os.getenv("READOCS_MODEL_ID", "claude-3-haiku-20240307"),
         "--model",
         help="Modelo a ser usado pelo agente (ex.: claude-3-haiku-20240307)",
         show_default=True,
     ),
     dry_run: bool = typer.Option(
-        False,
+        os.getenv("READOCS_DRY_RUN", "0") == "1",
         "--dry-run",
         help="Executa a análise sem escrever README/CHANGELOG.",
     ),
     skip_clean: bool = typer.Option(
-        False,
+        os.getenv("READOCS_SKIP_CLEAN", "0") == "1",
         "--skip-clean",
         help="Não executa limpeza automática de duplicatas no README.",
     ),
     skip_changelog: bool = typer.Option(
-        False,
+        os.getenv("READOCS_SKIP_CHANGELOG", "0") == "1",
         "--skip-changelog",
         help="Não cria/atualiza a entrada do CHANGELOG.",
     ),
@@ -59,8 +58,8 @@ def generate(
     """Gera documentação com base no código do projeto."""
     print_banner()
     set_runtime_options(
-        project_folder=project_folder,
-        root_dir=root_dir,
+        project_folder=project_path,  # Usar project_path agora
+        root_dir=output_dir,  # Usar output_dir como root_dir
         model=model,
         dry_run=dry_run,
         skip_clean=skip_clean,
