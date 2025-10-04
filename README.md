@@ -9,8 +9,7 @@
 </div>
 
 ## 📋 Introdução
-
-O **Readocs** é uma ferramenta universal que utiliza inteligência artificial para analisar automaticamente qualquer projeto de código e gerar documentação personalizada e precisa. Ele funciona com projetos Python, Node.js, React, Java, .NET, Go, Rust e muitos outros.
+O **Readocs** é uma ferramenta universal que utiliza inteligência artificial para analisar automaticamente qualquer projeto de código e gerar documentação personalizada e precisa em PT-BR. Ele funciona com projetos Python, Node.js, React, Java, .NET, Go, Rust e muitos outros.
 
 ### ✨ Principais Características
 
